@@ -49,12 +49,10 @@ class PongGame:
 		self.score_p2 = game.score_p2
 		self.status = game.status
 		self.map = game.map
-		self.winner = None
-		self.loser = None
 		self.corner_up = (MAP_SIZE_Y / 2) * -1
 		self.corner_down = (MAP_SIZE_Y / 2)
 		self.run = False
-		print(f"{MAGENTA} Room [{self.room_id}] game started with success {RESET}")
+		print(f"{MAGENTA} Room [{self.room_id}] game started with success")
 
 	def get_player(self, player):
 		return player.user
@@ -80,23 +78,17 @@ class PongGame:
 				self.p2_y += PLAYER_SPEED
 				if (self.p2_y + (PADDLE_SIZE / 2) > self.corner_down):
 					self.p2_y = self.corner_down - (PADDLE_SIZE / 2)
-		
 	
-	def check_end(self):
-		if self.score_p1 == 10:
-			self.winner = self.p1
-			self.loser = self.p2
-			self.status = 'finished'
-		elif self.score_p2 == 10:
-			self.winner = self.p2
-			self.loser = self.p1
-			self.status = 'finished'
+	def check_run(self):
+		if self.status == 'ongoing':
+			return True
+		else:
+			return False
 		
 	def update_game_state(self):
-		if self.status == 'ongoing':
-			self.ball.move()
-			self.handle_collision()
-		self.check_end()
+		self.ball.move()
+		self.handle_collision()
+
 		game_state = {
             'ball_posX': self.ball.x,
             'ball_posY': self.ball.y,
@@ -104,11 +96,13 @@ class PongGame:
             'p2_posY': self.p2_y,
             'p1_score': self.score_p1,
             'p2_score': self.score_p2,
-			'status': self.status,
-			'winner': self.winner,
-			'loser': self.loser,
         }
 		return game_state
+	
+
+	# def checkColPlayers(self):
+	# 	if self.ball_pos_x - (BALL_SIZE / 2) < -6 + (PADDLE_WIDTH / 2):
+	# 		if self.ball_pos_y
 
 	def handle_collision(self):
 		if self.ball.y > (MAP_SIZE_Y / 2) - (BALL_SIZE / 2):
@@ -127,7 +121,6 @@ class PongGame:
 					self.ball.y_vel = difference_in_y / reduction_factor
 				elif self.ball.x <= (MAP_SIZE_X / 2) * -1:
 					self.ball.x = 0
-					self.score_p2 += 1
 		else:
 			#check right paddle
 			if self.ball.x + (BALL_SIZE / 2) >= (MAP_SIZE_X / 2) - (PADDLE_WIDTH / 2):
@@ -139,21 +132,11 @@ class PongGame:
 					self.ball.y_vel = difference_in_y / reduction_factor
 				elif self.ball.x >= (MAP_SIZE_X / 2):
 					self.ball.x = 0
-					self.score_p1 += 1
 
 
 
 	def get_game_state(self):
-		game_state = {
-            'ball_posX': self.ball.x,
-            'ball_posY': self.ball.y,
-            'p1_posY': self.p1_y,
-            'p2_posY': self.p2_y,
-            'p1_score': self.score_p1,
-            'p2_score': self.score_p2,
-			'status': self.status,
-        }
-		return game_state
+		pass
 
 	def log_game(self):
 		print(f"{MAGENTA}Game [{self.game_id}]")

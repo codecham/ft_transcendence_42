@@ -8,8 +8,6 @@ const screen_x = 1200;
 const screen_y = 800;
 const x_scale = 12
 const y_scale = 8
-const score_div = document.getElementById("score")
-
 
 export function convertCoordX(value)
 {
@@ -64,11 +62,6 @@ export function dessinerPong(data) {
 	var p2_y = data.p2_posY
 	var ball_x = data.ball_posX
 	var ball_y = data.ball_posY
-	var p1_score = data.p1_score
-	var p2_score = data.p2_score
-	var status = data.status
-	var winner = data.winner
-	var loser = data.loser
 
 	// var str = JSON.stringify(data);
 	// str = JSON.stringify(data, null, 4); // (Optional) beautiful indented output.
@@ -87,11 +80,4 @@ export function dessinerPong(data) {
 	// Dessiner la balle
 	// context.fillRect(ball_x - balleTaille / 2, ball_y - balleTaille / 2, balleTaille * canvas.width, balleTaille * canvas.height);
 	context.fillRect(convertCoordX(ball_x) - (convertValueY(balleTaille) / 2), convertCoorY(ball_y) - (convertValueY(balleTaille) / 2), convertValueY(balleTaille), convertValueY(balleTaille))
-	
-	score_div.innerText = '';
-	score_div.innerText = `${p1_score} -- ${p2_score}`;
-	score_div.style.color = 'gray';
-	if (status == 'finished') {
-		score_div.innerText = `----- Winner: ${winner} -- Loser: ${loser}`;
-	}
   }

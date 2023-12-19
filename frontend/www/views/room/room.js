@@ -5,7 +5,6 @@ const start_btn_div = document.getElementById("start_button_div")
 const start_btn = document.getElementById("start_btn_id")
 const lobby_div = document.getElementById("lobby-div")
 const pongCanvas = document.getElementById("pongDiv")
-const game_message_elem = document.getElementById('game_message');
 let socket;
 
 start_btn.addEventListener('click', sendStartGame)
@@ -20,14 +19,6 @@ function sendSocket(type, data) {
         console.error('WebSocket connection is not open.');
     }
 }
-
-function gamePaused(data) {
-    game_message_elem.innerText = '';
-    game_message_elem.innerText = 'Game pause';
-    game_message_elem.style.color = 'gray';
-}
-
-
 
 
 function sendStartGame() {
@@ -242,6 +233,5 @@ function handleMessage(data) {
 */
 
 function drawGame(data) {
-    game_message_elem.innerText = '';
-    dessinerPong(data);
+    dessinerPong(data); //function for 
 }

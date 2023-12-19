@@ -1,8 +1,39 @@
 version: '3'
+
 services:
-  postgres:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    expose:
+      - 8000
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    command: ["bash", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - 8080:80
+      - 8443:443
+    networks:
+      - mynetwork
+
+  db:
     image: postgres:latest
-    container_name: postgres
+    container_name: db
+    expose:
+      - 5432
+    networks:
+      - mynetwork
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -10,3 +41,7 @@ services:
     ports:
       - "5432:5432"
     command: postgres -c listen_addresses=*
+
+networks:
+  mynetwork:
+    driver: bridge
