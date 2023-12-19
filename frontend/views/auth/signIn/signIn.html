@@ -1,0 +1,25 @@
+<div class="container mt-5">
+    <div class="card bg-light mx-auto" style="max-width: 400px;">
+        <!-- <div class="card-header">Sign In</div> -->
+        <div class="card-body">
+            <h5 class="card-title text-center">Sign In</h5>
+			<div id="error-message" class="text-danger"></div>
+			<div id="success-message" class="text-success">Login successful</div>
+            <form id="signUp-form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" class="form-control" id="username" name="username" required minlength="1" title="Field can't be empty">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" class="form-control" id="password" name="password" required minlength="1" title="Field can't be empty">
+                </div>
+
+                <p class="text-center">Not register yet? You can register <span id="register-link">here</span></p>
+
+                <button type="submit" class="btn btn-primary btn-block ml-auto">Sign In</button>
+            </form>
+        </div>
+    </div>
+</div>

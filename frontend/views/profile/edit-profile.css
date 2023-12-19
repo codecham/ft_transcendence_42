@@ -1,0 +1,20 @@
+/* .form-text {
+    color: black;
+} */
+
+.form-control {
+    width: 200px;
+    height: 30px;
+    font-size: 14px;
+}
+
+.form-label {
+	color: gray;
+	font-size: 30px;
+	text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.2);
+}
+
+.mandatory-list {
+	font-size: 15px;
+	/* text-shadow: 2px 2px 3px rgba(255, 255, 255, 0.2); */
+}

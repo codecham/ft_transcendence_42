@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="mb-3">
+            <form id="avatarForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="fileInput" class="form-label">Profile Image</label>
+                    <input type="file" class="form-control" id="fileInput" accept=".jpg, .jpeg, .png" required>
+                    <div class="form-text">Accepted formats: .jpg, .jpeg, .png</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Apply</button>
+            </form>
+        </div>
+    </div>
+    <script src="edit-profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+@font-face {
+    font-family: 'BruceForever';
+    src: url('../../assets/font/bruce-forever-font/BruceForeverRegular-X3jd2.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Aquire';
+    src: url('../../assets/font/aquire-font/Aquire-BW0ox.otf') format('truetype');
+}
+
+body {
+	background-color: black;
+}
+
+#room-div h1 {
+    font-size: 3em;
+    color: cyan;
+    margin-bottom: 30px;
+    font-family: 'BruceForever';
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+#room-div h3 {
+    font-size: 1em;
+    color: green;
+    margin-bottom: 30px;
+    font-family: 'Aquire';
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+#users-in-room {
+	font-size: 1em;
+	text-align: left;
+	color: white;
+}
+
+#error-message {
+    color: red;
+}
+
+.custom-container {
+    max-width: 420px;
+    margin: auto;
+}
+
+.list-unstyled {
+    list-style: none;
+}
+
+#info-id {
+    border: 2px solid #ccc;
+    padding: 10px;
+    max-width: 300px;
+}
+
+.title-container {
+    max-width: 500px;
+}
+
+.custom-button {
+    background-color: #136328;
+    font-family: 'BruceForever';
+    font-size: 15px;
+    color: #e5e7eb;
+    border-color: #171718;
+    border-radius: 20px;
+    border-width: 0.3px;
+    transition: background-color 0.3s ease;
+}
+
+.custom-button:hover {
+    background-color: #188034;
+    color: #fff;
+    border-color: #e5e7eb;
+}
+
+.custom-button:active {
+    background-color: #136328 !important;
+}
+
+.settings-container {
+    max-width: 450px;
+    color: white;
+    border-radius: 20px;
+}
+
+.player-logo {
+    width: 15px;
+    height: 15px;
+}
+
+#player-list {
+    display: none;
+    font-size: 10px;
+    /* list-style: none; */
+}
+
+#settings-list {
+    color: white;
+    font-family: 'BruceForever';
+    font-size: 17px;
+    list-style: none;
+}
+
+#player-list-settings {
+    font-family: 'BruceForever';
+    font-size: 14px;
+    color: gray;
+}

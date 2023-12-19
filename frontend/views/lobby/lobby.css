@@ -1,0 +1,56 @@
+@font-face {
+    font-family: 'BruceForever';
+    src: url('../../assets/font/bruce-forever-font/BruceForeverRegular-X3jd2.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Aquire';
+    src: url('../../assets/font/aquire-font/Aquire-BW0ox.otf') format('truetype');
+}
+
+#lobby-div h1 {
+    font-size: 5em;
+    color: cyan;
+    margin-bottom: 30px;
+    font-family: 'BruceForever';
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+.container-button {
+    height: 30vh;
+	border-color: cyan !important;
+}
+
+#container-button_id {
+    display: block;
+}
+
+.container-title {
+    border-color: cyan !important;
+}
+
+#container_tournament_id {
+    display: none;
+    color: white;
+}
+
+.container-tournament_id h5 {
+    font-size: 2em;
+}
+
+.numbers-container {
+    display: flex;
+    justify-content: center;
+}
+
+.number {
+    border: 3px solid #ccc;
+    padding: 5px 10px;
+    margin: 0 5px;
+    cursor: pointer;
+}
+
+.selected {
+    border-color: #007bff;
+    color: #007bff;
+}

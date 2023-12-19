@@ -1,0 +1,48 @@
+@font-face {
+    font-family: 'BruceForever';
+    src: url('../../assets/font/bruce-forever-font/BruceForeverRegular-X3jd2.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Aquire';
+    src: url('../../assets/font/aquire-font/Aquire-BW0ox.otf') format('truetype');
+}
+
+#home-btn {
+    color: white;
+}
+
+#user-list-btn {
+    color: white;
+}
+
+#logo-42 {
+    width: 55px;
+    height: 55px;
+    transition: transform 0.3s ease-in-out;
+}
+
+#logo-42:hover {
+    transform: scale(1.2);
+}
+
+#profile-icon-btn {
+    width: 45px;
+    height: 45px;
+    filter: brightness(75%) grayscale(100%);
+}
+
+#username_btn {
+    color: white;
+}
+
+#nav-bar {
+    display: none;
+}
+
+.custom-nav-link {
+    font-size: 20px;
+    font-family: 'BruceForever'; 
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+

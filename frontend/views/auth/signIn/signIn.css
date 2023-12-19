@@ -1,0 +1,18 @@
+#error-message {
+	display: none;
+}
+
+#success-message {
+	display: none;
+}
+
+#register-link {
+	color: blue;
+	text-decoration: underline;
+	cursor: pointer;
+	transition: transform 0.3s ease-in-out;
+}
+
+#register-link:hover {
+    transform: scale(1.1);
+}

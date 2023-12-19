@@ -1,0 +1,49 @@
+@font-face {
+    font-family: 'BruceForever';
+    src: url('../../assets/font/bruce-forever-font/BruceForeverRegular-X3jd2.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Aquire';
+    src: url('../../assets/font/aquire-font/Aquire-BW0ox.otf') format('truetype');
+}
+
+#profile-div {
+	margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+#profile-div h1 {
+    font-size: 5em;
+    color: cyan;
+    margin-bottom: 30px;
+    font-family: 'BruceForever';
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+
+.avatar-frame {
+    border: 2px solid #000;
+    padding: 10px;
+    width: 200px;
+    height: 200px; 
+    text-align: center; 
+    background-color: gray;
+}
+
+#username_div h2 {
+    font-size: 4em; 
+    font-family: 'Aquire';
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+#username_div a {
+    font-size: 1em; 
+    font-family: 'Aquire';
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+    align-items: center;
+}

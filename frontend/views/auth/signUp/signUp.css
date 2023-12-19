@@ -1,0 +1,18 @@
+#error-message {
+	display: none;
+}
+
+#success-message {
+	display: none;
+}
+
+#login-link {
+	color: blue;
+	text-decoration: underline;
+	cursor: pointer;
+	transition: transform 0.3s ease-in-out;
+}
+
+#login-link:hover {
+    transform: scale(1.1);
+}
