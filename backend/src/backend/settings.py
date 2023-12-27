@@ -153,7 +153,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-time.sleep(5.4)
+time.sleep(10.4)
 
 try:
 	with connection.cursor():

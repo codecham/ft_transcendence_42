@@ -1,4 +1,7 @@
 COMPOSE_FILE = docker-compose.yml
+DOCKER = docker
+FRONTEND_ID = f516c4fb4073 #Replace by the id of the frontend container (docker ps)
+
 
 #start the database containers
 start:
@@ -31,3 +34,7 @@ stop_db_linux:
 #remove the docker database containers
 clean_db_linux: stop_db
 	sudo docker-compose -f $(COMPOSE_FILE) down --rmi all
+
+update_front:
+	@echo "Copying local site to NGINX container..."
+	$(DOCKER) cp $(CURDIR)/frontend/www $(FRONTEND_ID):/var/
