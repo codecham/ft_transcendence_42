@@ -3,10 +3,12 @@ import asyncio
 import time
 
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import Room, Player, Game
+from .models import Room, Game, Player
 from channels.db import database_sync_to_async
 from django.db import transaction
 from .pong import PongGame
+from .tournament import Tournament
+from .roomPong import RoomPong
 
 RESET = "\033[0m"
 BOLD = "\033[1m"
@@ -19,9 +21,9 @@ BLUE = "\033[94m"
 MAGENTA = "\033[95m"
 CYAN = "\033[96m"
 
-
 class GameManager:
     _games = {}
+    _tournament = {}
 
     @classmethod
     def get_game(cls, room_id):
@@ -30,6 +32,28 @@ class GameManager:
     @classmethod
     def set_game(cls, room_id, game_instance):
         cls._games[room_id] = game_instance
+
+    @classmethod
+    def get_tournament(cls, room_id):
+        return cls._tournament.get(room_id)
+    
+    @classmethod
+    def set_tournament(cls, room_id, tournament):
+        cls._tournament[room_id] = tournament
+
+
+
+class RoomManager:
+    _rooms = {}
+
+    @classmethod
+    def get_room(cls, room_id):
+        return cls._rooms.get(room_id)
+    
+    @classmethod
+    def set_room(cls, room_id, room_instance):
+        cls._rooms[room_id] = room_instance
+
 
 
 
@@ -40,117 +64,72 @@ class GameConsumer(AsyncWebsocketConsumer):
     #-------------------------------------------------------------------------
     async def connect(self):
         self.room_id = self.scope["url_route"]["kwargs"]["room_id"]
-        self.room = await self.get_room()
         self.user = self.scope["user"]
         self.user_id = self.scope["user"].id
         self.username = self.scope["user"].username
-        self.game = None
-
-
-        await self.accept()
-        if not await self.checkRoomIdConnection(self.username):
-            return
-
-        self.isMaster = False
-        self.game_started = await self.get_game_start()
-        self.isTournament = await self.get_is_tournament()
+        self.player = Player(self.user_id, self.username)
         self.slot = 0
+        self.room = await self.get_room_instance()
         await asyncio.sleep(0.1)
 
-        if not self.game_started:
-            await self.handleNewUser()
-            await self.send_information_to_new_client()
-        elif await self.player_is_in_slot():
-            await self.handleReconnexion()
-            await self.send_information_to_new_client()
-        else:
-            await self.send(text_data=json.dumps({
-                'error': "Game already start"
-            }))
+        await self.accept()
+        if not await self.checkIfAlreadyconneted():
             await self.close()
+            return
+        if not await self.checkRoomFull():
+            await self.close()
+            return
         
+        if self.room.status == 'lobby':
+            await self.handleNewUser()
+        else:
+            if not await self.reconnexion():
+                return
+        await self.send_player_info()
+        await self.send_group_event('new_player_event', {})
 
 
 
-
-    async def checkRoomIdConnection(self, username):
-        #Handle error room
-        if not self.room:
-            print(f"{RED}Room_id [[{self.room_id}]] doens't exist. [{username}]'s socket closed{RESET}")
+    async def checkIfAlreadyconneted(self):
+        if self.room.is_player_connected(self.player):
             await self.send(text_data=json.dumps({
-                'error': "Room doesn't exist"
+                'error': "User is already connected"
             }))
-            await self.close()
             return False
         return True
     
 
-    async def is_user_already_connected(self):
-        connected_users = await self.get_connected_players()
-        return self.username in connected_users
-
-
-
-    async def handleNewUser(self):
-        # Add user to group
-        await self.channel_layer.group_add(self.room_id, self.channel_name)
-        # Add user to player slot
-        await self.add_user_to_slot()
-        # Add user to connected players
-        await self.add_user_from_players_connected()
-        # Add player to master
-        if not await self.has_master_player():
-            await self.set_master_for_player()
-            self.isMaster = True
-        elif self.room.master_user_id == self.user_id:
-            self.isMaster = True
-        # Get Room Creator
-        self.room_creator = await database_sync_to_async(lambda: self.room.creator.username)()
-        # Get Player Slot
-        self.player_slot = await self.get_player_slots()
-        # Get Connected user
-        self.connected_player = await self.get_connected_players()
-        # Get Max Player
-        self.max_player = self.room.max_player
-        # Get Player Object
-        self.player = await self.get_player_by_id()
-        #Print Player log join
-        print(f"{GREEN}Room [{self.room_id}]: new player join: {self.username}{RESET}")
-        # Broadcast to users in group
-        await self.send_group_event('user.joined', {})
-
-
-    async def handleReconnexion(self):
-        self.player = await self.get_player_by_id()
-        self.player_slot = await self.get_player_slots()
-        await self.set_player_connexion(True)
-        await asyncio.sleep(0.1)
-        self.slot = self.player.slot
-        await self.channel_layer.group_add(self.room_id, self.channel_name)
-        if self.room.master_user_id == self.user_id:
-            self.isMaster = True
-        self.connected_player = await self.get_connected_players()
-        self.max_player = self.room.max_player
-        print(f"{GREEN}Room [{self.room_id}]: player reconnexion: {self.username}{RESET}")
-        await self.send_group_event('user.reconnexion', {})
-
+    async def checkRoomFull(self):
+        if self.room.room_is_full():
+            await self.send(text_data=json.dumps({
+                'error': "Room is full"
+            }))
+            print(f"{RED}Room {self.room_id} is full. {self.player.name} is rejected{RESET}")
+            return False
+        return True
     
 
-    async def send_information_to_new_client(self):
+    async def handleNewUser(self):
+        await self.channel_layer.group_add(self.room_id, self.channel_name)
+        self.room.add_player_connected(self.player)
+        self.slot = self.room.add_player_to_first_available_slot(self.player)
 
-        #Send name
-        await self.send(text_data=json.dumps({
-            'type': 'name',
-            'name': self.username 
-        }))
+    async def reconnexion(self):
+        self.slot = self.room.get_player_slot(self.player.user_id)
+        if self.slot == None:
+            await self.send(text_data=json.dumps({
+                'error': "Room is full and game is already start"
+            }))
+            return False
+        self.room.add_player_connected(self.player)
+        await self.channel_layer.group_add(self.room_id, self.channel_name)
+        return True
 
-        #Send information of player
-        await self.send(text_data=json.dumps({
-            'type': 'player_info',
-            'name': self.username,
-            'slot' : self.slot,
-            'is_master': self.isMaster
-        }))
+
+
+    async def send_player_info(self):
+        await self.send_event_to_current_client("player_info", {'name': self.player.name, 'slot': self.player.slot, 'is_master': self.player.isMaster})
+
 
 
 
@@ -158,86 +137,73 @@ class GameConsumer(AsyncWebsocketConsumer):
     #                          DECONNEXION functions
     #-------------------------------------------------------------------------
     async def disconnect(self, close_code):
-        if self.room:
-            if not self.game_started:
-                #Remove user from connected player
-                await self.remove_user_from_players_connected()
-                #Remove user from player slot
-                await self.remove_user_to_slot()
-                #Remove master player
-                await self.remove_player_master()
-                #Broadcast user left
-                await self.send_group_event('user.left', {})
-                #Remove user form group layer
-                await self.channel_layer.group_discard(self.room_id, self.channel_name)
-                #Print the player list
-                await self.print_connected_players()
-                print(f"{RED}{self.username} leave room {self.room_id}{RESET}")
-            else:
-                #Remove user from connected player
-                await self.set_player_connexion(False)
-                await self.channel_layer.group_discard(self.room_id, self.channel_name)
-                await self.send_group_event('user_deconnexion', {})
-                print(f"{RED}{self.username} deconnexion in room {self.room_id}{RESET}")
+        if self.room.is_player_connected(self.player):
+            if self.room.status == 'lobby':
+                self.room.remove_player_connected(self.player)
+            self.room.remove_player_slot(self.player)
+            await self.channel_layer.group_discard(self.room_id, self.channel_name)
+            await self.send_group_event('leave_player_event', {})
+
+
 
 
 
     #-------------------------------------------------------------------------
-    #                          BROADCAST functions
+    #                          Room functions
     #-------------------------------------------------------------------------
-    #Function for send message to all user in the same groupe
-    async def send_group_message(self, message):
-        await self.channel_layer.group_send(
-            self.room_id,
-            message
-        )
+    async def get_room_instance(self):
+        room = RoomManager.get_room(self.room_id)
+        if room == None:
+            room_db = await self.get_room()
+            room_instance = RoomPong(room_db)
+            RoomManager.set_room(self.room_id, room_instance)
+            room = RoomManager.get_room(self.room_id)
+        await asyncio.sleep(0.1)
+        return room
     
-    async def send_connected_players(self):
-        await self.send_group_message({
-            'type': 'users_list',
-            'users_list': self.connected_player,
-            'max_player': self.max_player,
-        })
 
-    async def users_list(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'users_list',
-            'users_list': self.connected_player,
-            'max_player': self.max_player,
-        }))
+    #-------------------------------------------------------------------------
+    #                       Send socket functions
+    #-------------------------------------------------------------------------
+    async def send_event_to_current_client(self, event_type, event_data):
+        """
+        Envoie un message personnalisé au client actuel.
+        Args:
+            event_type (str): Le type d'événement à envoyer.
+            event_data (dict): Les données associées à l'événement.
+        """
+        message = {
+            'type': event_type,
+            'data': event_data,
+        }
+        await self.send(text_data=json.dumps(message))
 
-    async def send_game_started(self):
+    async def send_event_to_all_clients(self, event_type, event_data):
+        message = {
+            'type': event_type,
+            'data': event_data,
+        }
         await self.channel_layer.group_send(
             self.room_id,
             {
-                'type': 'game_start',
+                'type': 'send.custom.message_handler',
+                'message': message,
             }
         )
-    
-    async def game_start(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'game_start',
-        }))
+
+    async def send_custom_message_handler(self, event):
+        message = event['message']
+        await self.send(text_data=json.dumps(message))
+
     
 
-    async def game_update(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'game_update',
-            'data': event['data'],
-        }))
-
+    
 
     #-------------------------------------------------------------------------
     #                          EVENT functions template
     #-------------------------------------------------------------------------
 
     async def send_group_event(self, event_type, event_data):
-        """
-        Envoie un événement à tous les utilisateurs du groupe.
-        Args:
-            event_type (str): Le type d'événement à envoyer.
-            event_data (dict): Les données associées à l'événement.
-        """
         await self.channel_layer.group_send(
             self.room_id,
             {
@@ -247,11 +213,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         )
 
     async def receive_group_event(self, event):
-        """
-        Gère la réception d'un événement de groupe.
-        Args:
-            event (dict): Les données de l'événement reçu.
-        """
         event_type = event.get('type')
         if event_type:
             handler_name = f'receive_{event_type}'
@@ -265,80 +226,51 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 
     #-------------------------------------------------------------------------
-    #                          EVENT functions
+    #                          BROADCAST functions
     #-------------------------------------------------------------------------
 
+    async def new_player_event(self, event):
+        await self.send_player_list_slot()
+        await self.send_nb_player_connected()
+
+    async def leave_player_event(self, event):
+        await self.send_player_list_slot()
+        await self.send_nb_player_connected()
 
 
-    async def user_joined(self, event):
-        self.room = await self.get_room()
-        await asyncio.sleep(0.1)
-        self.connected_player = await self.get_connected_players()
-        self.player_slot = await self.get_player_slots()
-        await self.send_connected_players()
-        await self.log_room()
+    #-------------------------------------------------------------------------
+    #                          BROADCAST clients functions
+    #-------------------------------------------------------------------------
 
-    async def user_left(self, event):
-        self.room = await self.get_room()
-        await asyncio.sleep(0.1)
-        self.connected_player = await self.get_connected_players()
-        self.player_slot = await self.get_player_slots()
-        await self.send_connected_players()
-        await self.log_room()
+    async def send_player_list_slot(self):
+        player_list = self.room.get_slot()
+        formatted_player_list = []
 
-    async def user_reconnexion(self, event):
-        self.room = await self.get_room()
-        await asyncio.sleep(0.1)
-        self.connected_player = await self.get_connected_players()
-        await self.send_connected_players()
+        for slot, player in player_list.items():
+            if player is not None:
+                formatted_player_list.append({'slot': slot, 'name': player.name})
+            else:
+                formatted_player_list.append({'slot': slot, 'name': 'none'})
 
+        await self.send_event_to_all_clients("player_list_slot", {'players': formatted_player_list})
+
+
+    async def send_nb_player_connected(self):
+        nbOfPlayer = len(self.room.get_connected_players())
+        await self.send_event_to_all_clients("nb_players", {'nb_players': nbOfPlayer})
+
+    async def send_change_screen(self, screen_type):
+        await self.send_event_to_all_clients("change_screen", {'screen_type': screen_type})
+
+    async def send_start_game(self):
+        await self.send_event_to_all_clients("stat_game", {})
+
+    async def send_game_state(self, game_state):
+        await self.send_event_to_all_clients('game_update', game_state)
     
-    async def user_deconnexion(self, event):
-        self.room = await self.get_room()
-        await asyncio.sleep(0.1)
-        self.connected_player = await self.get_connected_players()
-        await self.send_connected_players()
+    async def send_end_single_game(self, game_state):
+        await self.send_event_to_all_clients('game_end', game_state)
 
-
-    async def game_start_event(self, event):
-        self.room = await self.get_room()
-        self.game = GameManager.get_game(self.room_id)
-        await asyncio.sleep(0.1)
-        self.game_started = True
-        await self.send_game_started()
-
-
-
-
-
-    #-------------------------------------------------------------------------
-    #                          INPUT functions
-    #-------------------------------------------------------------------------
-    #Function for receive data from client
-    async def receive(self, text_data):
-        data = json.loads(text_data)
-
-        if data['type'] == 'keypress':
-            key = data['key']
-            username = self.scope['user'].username
-            print(f"{username} press {key} in room {self.room_id}")
-            await self.input_key(data['key'])
-        
-        if data['type'] == 'action':
-           if data['data'] == 'startGame':
-            await self.startGame()
-
-
-
-
-
-    #-------------------------------------------------------------------------
-    #                          PRINT functions
-    #-------------------------------------------------------------------------
-    #Print the list of connected users
-    async def print_connected_players(self):
-        connected_players = await self.get_connected_players()
-        print(f"{CYAN}Players connected in room [{self.room_id}]: {connected_players}{RESET}")
 
 
 
@@ -351,203 +283,109 @@ class GameConsumer(AsyncWebsocketConsumer):
             return Room.objects.get(room_id=self.room_id)
         except Room.DoesNotExist:
             return None
-
+        
     @database_sync_to_async
-    def add_user_from_players_connected(self):
-        player, created = Player.objects.get_or_create(user=self.user, name=self.username, room_id=self.room_id, slot=self.slot)
-        self.room.add_user_to_players_connected(player)
-
-    @database_sync_to_async
-    def remove_user_from_players_connected(self):
-        self.room.remove_user_from_players_connected(self.user, self.slot)
-    
-    @database_sync_to_async
-    def get_connected_players(self):
-        list_of_player = self.room.get_connected_players()
-        return list_of_player
-    
-    @database_sync_to_async
-    def add_user_to_slot(self):
-        with transaction.atomic():
-            self.slot = self.room.add_user_to_slot(self.user.id)
-            
-    
-    @database_sync_to_async
-    def remove_user_to_slot(self):
-        with transaction.atomic():
-            self.room.remove_user_from_slot(self.user.id)
-
-    @database_sync_to_async
-    def get_player_slots(self):
-        with transaction.atomic():
-            player_slots = self.room.get_player_slots()
-            return player_slots
-    
-    @database_sync_to_async
-    def log_db(self):
-        self.room.print_value_db()
-    
-    @database_sync_to_async
-    def get_max_player(self):
-        self.room.get_max_player()
-    
-    @database_sync_to_async
-    def has_master_player(self):
-        return self.room.has_master_player()
-    
-    @database_sync_to_async
-    def get_player_by_id(self):
-        return self.room.get_player_by_user_id(self.user_id)
-    
-    @database_sync_to_async
-    def set_master_for_player(self):
-        self.room.set_user_master(self.user_id)
-
-    @database_sync_to_async
-    def remove_player_master(self):
-        self.room.remove_master(self.user_id)
-
-    @database_sync_to_async
-    def get_number_of_player_connected(self):
-        return self.room.get_number_of_players_connected()
-    
-    @database_sync_to_async
-    def set_game_start(self, value):
-        self.room.set_game_start(value)
-    
-    @database_sync_to_async
-    def get_game_start(self):
-        return self.room.get_game_start()
-    
-    @database_sync_to_async
-    def get_is_tournament(self):
-        return self.room.get_is_tournament()
-    
-    @database_sync_to_async
-    def player_is_in_slot(self):
-        return self.room.player_is_in_slot(self.user_id)
-    
-    @database_sync_to_async
-    def set_player_connexion(self, value):
-        self.room.set_player_connexion(self.user_id, value)
-    
-    @database_sync_to_async
-    def get_player_by_slots(self, slot):
-        return self.room.get_player_by_slot(slot)
-    
-    @database_sync_to_async
-    def create_game_db(self, player1_id, player2_id):
-        new_game = Game.objects.create(player1_id=player1_id, player2_id=player2_id, status='ongoing')
-        return new_game
-    
-    @database_sync_to_async
-    def set_current_game(self, game_id):
-        self.room.set_current_game(game_id)
-
-    
-    async def log_room(self):
-        print(f"{CYAN}Log of room [{self.room_id}] for user [{self.username}] connected on slot [{self.slot}] {RESET}")
-        print(f"{CYAN}Connected_user [{self.connected_player}]{RESET}")
-        print(f"{CYAN}Player Slot [{self.player_slot}]{RESET}")
+    def save_game_db(self, game_state):
+        try:
+            game = Game.objects.create(
+                player1_id=game_state['p1_id'],
+                player2_id=game_state['p2_id'],
+                score_p1=game_state['p1_score'],
+                score_p2=game_state['p2_score'],
+                winner_id=game_state['winner_id'],
+                loser_id=game_state['loser_id']
+            )
+            print(f"Game {game.game_id} saved in the database.")
+        except Exception as e:
+            print(f"Error saving game in the database: {e}")
 
 
-
-
-
-    
     #-------------------------------------------------------------------------
-    #                          GAME functions
+    #                          INPUT functions
     #-------------------------------------------------------------------------
+    #Function for receive data from client
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+
+        if data['type'] == 'keypress':
+            key = data['key']
+            # print(f"{self.player.name} press {key} in room {self.room_id}")
+            await self.input_key(data['key'])
+        
+        if data['type'] == 'action':
+           if data['data'] == 'startGame':
+            await self.startGame()
 
 
-    async def createGameInstance(self):
-        game_instance = PongGame(self.room_id, self.game_info)
-        GameManager.set_game(self.room_id, game_instance)
-        self.game = game_instance
-
-    async def handleNewGameError(self):
-        nbPlayer = await self.get_number_of_player_connected()
-        await asyncio.sleep(0.1)
-        if self.isMaster == False:
-            print(f"{RED}{self.username}: Only Master can start game (master-id = [{self.room.master_user_id}]){RESET}")
-            return False
-        if nbPlayer < self.room.max_player:
-            print(f"{RED}{self.username}: Room is not full{RESET}")
+    #-------------------------------------------------------------------------
+    #                          STARTGAME functions
+    #-------------------------------------------------------------------------
+    async def checkIfGameIsReady(self):
+        if not self.room.room_is_full():
+            await self.send(text_data=json.dumps({
+                'error': "Room is not full"
+            }))
             return False
         return True
 
-
-    async def create_new_game(self, slot1, slot2):
-        p1_id = self.player_slot[slot1] 
-        p2_id = self.player_slot[slot2] 
-        print(f"{YELLOW} p1_id[{slot1}] = [{p1_id}]")
-        print(f"{YELLOW} p2_id[{slot2}] = [{p2_id}] {RESET}")
-        new_game = await self.create_game_db(p1_id, p2_id)
-        return new_game
     
-
-    async def handleNewGame(self):
-        await self.set_game_start(True)
-        self.game_started = True
-        await self.send_game_started()
-        await self.set_current_game(self.game_info.game_id)
-
-    async def handleGameRun(self):
-        x = 0
-        print(f"game status = {self.game.status}")
-        while self.game.status == 'ongoing':
-            self.game = GameManager.get_game(self.room_id)
-            game_state = self.game.update_game_state()
-            await self.send(text_data=json.dumps({
-                'type': 'game_update',
-                'data': game_state,
-            }))
-            await self.channel_layer.group_send(
-                self.room_id,
-                {
-                    'type': 'game_update',
-                    'data': game_state,
-                }
-            )
-            x += 1
-            await asyncio.sleep(0.1)
-
-
     async def startGame(self):
-        if not await self.handleNewGameError():
-            return
-        self.game_info = await self.create_new_game('1','2')
-        await self.createGameInstance()
-        await self.send_group_event('game_start_event', {})
-        await self.send(text_data=json.dumps({
-                'type': 'game_start',
-            }))
+        if self.player.isMaster:
+            if not await self.checkIfGameIsReady():
+                return
+            self.room.status = 'started'
+            if self.room.is_local == True:
+                print(f"{GREEN}Room [{self.room_id}] start a local game (in building){RESET}") 
+            elif self.room.is_tournament == True:
+                print(f"{GREEN}Room [{self.room_id}] start a tournament (in building){RESET}") 
+            else:
+                print(f"{GREEN}Room [{self.room_id}] start a single game{RESET}")
+                await self.singleGameHandler()
 
-        await self.channel_layer.group_send(
-            self.room_id,
-            {
-                'type': 'game_start',
-            }
-        )
-        await asyncio.sleep(0.1)
-        self.game.log_game()
-        await self.handleNewGame()
-        if self.room.is_tournament == False:
-            print(f"{GREEN}{self.username}: Launch single game {RESET}")
-            print(f"{MAGENTA}{self.user}: game = {self.game}{RESET}")
-            await self.handleGameRun()
-        else:
-            #lauch tournament
-            print(f"{GREEN}{self.username}: lauch tournament {RESET}")
-        
+    async def create_new_game(self, player1, player2):
+        new_game = PongGame(self.room_id, player1, player2)
+        GameManager.set_game(self.room_id, new_game)
+        self.room.set_current_game(GameManager.get_game(self.room_id))
+
+
+
+    async def singleGameHandler(self):
+        player_1 = self.room.get_player_by_slot(1)
+        player_2 = self.room.get_player_by_slot(2)
+        await self.create_new_game(player_1, player_2)
+        await self.send_change_screen('game')
+        await self.send_start_game()
+        self.game_task = asyncio.create_task(self.handleGameRun())
+
+
+
+    #-------------------------------------------------------------------------
+    #                          STARTGAME functions
+    #-------------------------------------------------------------------------
+    async def handleGameRun(self):
+            game_state = self.room.current_game.update_game_state()
+            while game_state['status'] == 'ongoing':
+                self.game = GameManager.get_game(self.room_id)
+                game_state = self.game.update_game_state()
+                await self.send_game_state(game_state)
+                await asyncio.sleep(0.1)
+            if game_state['status'] == 'finished' and self.room.is_local == False:
+                await self.save_game_db(game_state)
+                await asyncio.sleep(0.1)
+            await self.send_change_screen('end_game')
+            await self.send_end_single_game(game_state)
+            self.room.status = 'finished'
+            await asyncio.sleep(0.1)
+            if self.game_task:
+                self.game_task.cancel()
+
+            
 
 
 
     #-------------------------------------------------------------------------
     #                          ACTION functions
     #-------------------------------------------------------------------------
-
     async def input_key(self, key):
-        if self.game != None:
-            user_id = self.scope['user'].id
-            self.game.input_move(user_id, key)
+        if self.room.current_game != None:
+            self.room.current_game.input_move(self.player.user_id, key)

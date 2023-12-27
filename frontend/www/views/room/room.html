@@ -1,3 +1,5 @@
+
+<!-- LOBBY-DIV -->
 <div id="room-div" class="d-flex flex-column">
     <div id="lobby-div">
         <div class="d-flex justify-content-between align-items-center">
@@ -33,7 +35,27 @@
         </div>
     </div>
 </div>
-    <div id="pongDiv">
-        <canvas id="pongCanvas" width="1200" height="800"></canvas>
-    </div>
+
+<!-- GAME_DIV -->
+<div id="pongDiv">
+    <!-- <canvas id="pongCanvas" width="1200" height="800"></canvas> -->
 </div>
+
+<!--ENDGAME DIV-->
+<div id ="endGameDiv">
+    <div class="container-sm p-3 center endDivContainer">
+        <div class="game-result-container">
+          <div class="row">
+            <div class="col-md-6 my-5">
+              <h4 id="winner_title">WINNER</h4>
+              <p class="endGameName" id="winner_name"></p>
+            </div>
+            <div class="col-md-6 my-5">
+              <h4 id="loser_title"> LOSER</h4>
+              <p class="endGameName" id="loser_name"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+

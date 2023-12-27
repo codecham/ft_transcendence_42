@@ -1,25 +1,28 @@
-import { dessinerPong } from "./pong.js";
+import { recievedata } from "./pong.js";
+import { startGame } from "./pong.js";
+import { stopGame } from "./pong.js";
+
 
 let player = {};
-const start_btn_div = document.getElementById("start_button_div")
-const start_btn = document.getElementById("start_btn_id")
-const lobby_div = document.getElementById("lobby-div")
-const pongCanvas = document.getElementById("pongDiv")
 let socket;
 
+//Lobby div
+let lobby_div = document.getElementById("lobby-div")
+const start_btn = document.getElementById("start_btn_id")
+const username_field_elemt = document.getElementById("username-btn")
+
+
+//Game Div
+let pongCanvas = document.getElementById("pongDiv")
+
+
+//End div
+let endGamediv = document.getElementById('endGameDiv')
+
+
+//Lobby div Function
+/*---------------------------------------------------*/
 start_btn.addEventListener('click', sendStartGame)
-
-function sendSocket(type, data) {
-    if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({
-            type: type,
-            data: data,
-        }));
-    } else {
-        console.error('WebSocket connection is not open.');
-    }
-}
-
 
 function sendStartGame() {
     console.log("Button start game pressed");
@@ -31,78 +34,74 @@ function sendStartGame() {
     } else {
         console.error('WebSocket connection is not open.');
     }
-    var exempleData = {
-        p1_y: 0,
-        p2_y: 0,
-        ball_x: 0,
-        ball_y: 0
-      };
+    // startGame();
 }
 
 
-function gameStart() {
-    lobby_div.style.display = "none";
-    pongCanvas.style.display = "block";
-}
-
-
+//Create player object
 function setPLayerObject(player, data) {
-    console.log("Data in set player: " + data);
     player.name = data.name;
     player.slot = data.slot;
     player.is_master = data.is_master;
-    console.log("Player set:")
-    console.log("Name: " + player.name)
-    console.log("Slot: " + player.slot)
-    console.log("Is_master: " + player.is_master)
-}
-
-function updatePlayerName(name) {
-    const usernameElem = document.getElementById("username-btn");
-
-    usernameElem.innerHTML = '';
-	usernameElem.innerHTML = name;
-
-
-}
-
-function updateUsersList(usersList, maxPlayer) {
-    const playerList = document.getElementById("player-list-settings");
-    let nbPlayer = 0;
-    playerList.innerHTML = "";
-
-    for (let i = 1; i <= maxPlayer; i++) {
-        const listItem = document.createElement("li");
-
-        listItem.textContent = `Player ${i}: `;
-
-        const spanElement = document.createElement("span");
-
-        spanElement.id = `value_player_${i}`;
-        spanElement.innerHTML = "waiting player...";
-        spanElement.style.fontSize = "14px";
-        spanElement.style.color = "gray";
-        listItem.appendChild(spanElement);
-        playerList.appendChild(listItem);
+    username_field_elemt.innerText = ''
+    username_field_elemt.innerText = player.name
+    if (player.is_master != true) {
+        start_btn.style.display = 'none';
     }
-    
-    usersList.forEach(user => {
-        const spanId = `value_player_${user.slot}`;
-        const spanElement = document.getElementById(spanId);
+}
 
-        spanElement.innerText = "";
-        spanElement.innerText = user.name;
-        spanElement.style.fontSize = "17px";
-        spanElement.style.color = "#188034";
-        nbPlayer++;
-    });
 
+function setPlayerList(data) {
+    const playerListElem = document.getElementById("player-list-settings");
+    const players_list = data.players;
+
+    playerListElem.innerHTML = "";
+
+    for (let i = 1; i <= players_list.length; i++) {
+        const player = players_list[i - 1];
+
+        const li = document.createElement("li");
+
+        const playerText = `Player ${i}: `;
+
+        const span = document.createElement("span");
+
+        if (player.name !== "none") {
+            span.style.fontSize = "17px";
+            span.style.color = "#188034";
+            span.textContent = player.name;
+        } else {
+            span.style.fontSize = "14px";
+            span.style.color = "gray";
+            span.textContent = "waiting player...";
+        }
+
+        li.appendChild(document.createTextNode(playerText));
+        li.appendChild(span);
+
+        playerListElem.appendChild(li);
+    }
+}
+
+function setNumberOfPlayer(data) {
     const nbPlayerElem = document.getElementById("nb_player_button");
     nbPlayerElem.innerText = "";
-    nbPlayerElem.innerText = nbPlayer;
-    
+    nbPlayerElem.innerText = data.nb_players;
 }
 
+
+
+/*---------------------------------------------------*/
+
+
+
+
+
+
+
+
+//Socket Function
+/*---------------------------------------------------*/
 function showError(error) {
     const errorMessageElement = document.getElementById('error-message');
 
@@ -188,6 +187,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.addEventListener('keydown', function(event) {
             const key = event.key;
+            const arrowKeys = ['ArrowUp', 'ArrowDown'];
+
+            if (arrowKeys.includes(event.key)) {
+                event.preventDefault();
+            }
         
             socket.send(JSON.stringify({
                 type: 'keypress',
@@ -198,6 +202,23 @@ document.addEventListener('DOMContentLoaded', function() {
 }());
 
 
+function change_screen(data) {
+    const screenType = data.screen_type
+
+    if (screenType == 'game') {
+        lobby_div.style.display = 'none';
+        endGamediv.display = 'none';
+        pongCanvas.display = 'block';
+    }
+    if (screenType == 'end_game') {
+        stopGame();
+        lobby_div.style.display = 'none';
+        endGamediv.style.display = 'block';
+        pongCanvas.style.display = 'none';
+    }
+}
+
+
 
 /*
     Backend socket message handler
@@ -205,33 +226,59 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function handleMessage(data) {
     switch (data.type) {
-        case 'users_list':
-            updateUsersList(data.users_list, data.max_player);
-            break;
-        case 'name':
-            updatePlayerName(data.name);
-            break;
         case 'player_info':
-            setPLayerObject(player, data);
+            setPLayerObject(player, data.data);
             break;
-        case 'game_start':
-            gameStart()
+        case 'player_list_slot':
+            setPlayerList(data.data)
+            break;
+        case 'nb_players':
+            setNumberOfPlayer(data.data)
+            break;
+        case 'change_screen':
+            change_screen(data.data)
+            break;
+        case 'stat_game':
+            startGameEvent()
             break;
         case 'game_update':
-            drawGame(data.data);
+            drawGame(data.data)
+            break;
+        case 'game_end':
+            endGame(data.data)
             break;
         default:
             console.warn('Unknown message type:', data.type);
             console.warn(data);
     }
 }
+/*---------------------------------------------------*/
 
+
+
+
+function startGameEvent() {
+    startGame();
+}
+
+
+
+function drawGame(data) {
+    recievedata(data);
+}
 
 /*
     You can call your function here
     The function draw game will be call each time when a event with new game data is received from the server
 */
 
-function drawGame(data) {
-    dessinerPong(data); //function for 
+function endGame(data) {
+    let winnerNameElem = document.getElementById('winner_name');
+    let loserNameElem = document.getElementById('loser_name');
+    const winner = data.winner_name;
+    const loser = data.loser_name;
+    stopGame();
+
+    winnerNameElem.innerText = winner;
+    loserNameElem.innerText = loser;
 }

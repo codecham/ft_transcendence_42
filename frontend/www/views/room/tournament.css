@@ -104,6 +104,20 @@ body {
 
 #player-list-settings {
     font-family: 'BruceForever';
-    font-size: 14px;
-    color: gray;
+    font-size: 17px;
+    color: white;
+}
+
+#pongCanvas {
+    border: 1px solid blue;
+}
+
+
+#pongDiv {
+    display: none;
+    margin: 0 auto; 
+}
+
+#endGameDiv {
+    display: none;
 }

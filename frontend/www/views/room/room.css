@@ -108,11 +108,50 @@ body {
     color: white;
 }
 
+#pongCanvas {
+    border: 1px solid blue;
+}
+
+
 #pongDiv {
     display: none;
     margin: 0 auto; 
 }
 
-#pongCanvas {
-    border: 1px solid blue;
+#endGameDiv {
+    display: none;
+}
+
+.endDivContainer {
+    max-width: 600px;
+    max-height: 600px;
+    min-height: 200px;
+    color: white;
+    border-radius: 20px;
+}
+
+.endDivContainer h4 {
+    text-align:  center;
+}
+
+.endDivContainer p {
+    text-align:  center;
+}
+
+#winner_title {
+    color: red;
+    font-size: 30px;
+    font-family: 'BruceForever';
+}
+
+#loser_title {
+    color: blue;
+    font-size: 30px;
+    font-family: 'BruceForever';
+}
+
+.endGameName {
+    font-family: 'BruceForever';
+    font-size: 25px;
+    color: #188034;
 }

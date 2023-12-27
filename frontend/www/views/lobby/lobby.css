@@ -8,7 +8,19 @@
     src: url('../../assets/font/aquire-font/Aquire-BW0ox.otf') format('truetype');
 }
 
+#background {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: -1;
+    border: none;
+    pointer-events: none;
+}   
 #lobby-div h1 {
+    position: relative;
+    z-index: -1;
     font-size: 5em;
     color: cyan;
     margin-bottom: 30px;

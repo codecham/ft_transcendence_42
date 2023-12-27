@@ -1,5 +1,7 @@
-from .models import Room, Player, Game
+from .models import Room, Game, Player
 from channels.db import database_sync_to_async
+import random
+
 RESET = "\033[0m"
 BOLD = "\033[1m"
 RED = "\033[91m"
@@ -11,8 +13,8 @@ BLUE = "\033[94m"
 MAGENTA = "\033[95m"
 CYAN = "\033[96m"
 
-UP = 'ArrowUp'
-DOWN = 'ArrowDown'
+UP = 'ArrowDown'
+DOWN = 'ArrowUp'
 PADDLE_SIZE = 1.5
 PADDLE_WIDTH = 0.2
 MAP_SIZE_X = 12
@@ -20,11 +22,13 @@ MAP_SIZE_Y = 8
 BALL_SPEED_X = 0.3
 BALL_SPEED_Y = 0.1
 BALL_SIZE = 0.2
-PLAYER_SPEED = 0.2
+PLAYER_SPEED = 0.3
+SCORE_MAX = 2
+TIMER = 10
 
 
 class Ball:
-	MAX_VEL = 0.2
+	MAX_VEL = PLAYER_SPEED
 
 	def __init__(self, x, y):
 		self.x = x
@@ -37,22 +41,27 @@ class Ball:
 		self.y += self.y_vel
 
 class PongGame:
-	def __init__(self, room_id, game):
+	def __init__(self, room_id, player1, player2):
 		self.room_id = room_id
-		self.game_id = game.game_id
-		self.p1 = game.player1_id
-		self.p2 = game.player2_id
+		self.p1 = player1.user_id
+		self.p2 = player2.user_id
 		self.ball = Ball(0, 0)
-		self.p1_y = game.p1_pos
-		self.p2_y = game.p2_pos
-		self.score_p1 = game.score_p1
-		self.score_p2 = game.score_p2
-		self.status = game.status
-		self.map = game.map
+		self.p1_y = 0
+		self.p2_y = 0
+		self.score_p1 = 0
+		self.score_p2 = 0
+		self.p1_name = player1.name
+		self.p2_name = player2.name
+		self.status = 'ongoing'
+		self.winner_id = None
+		self.loser_id = None
+		self.winner_name = None
+		self.loser_name = None
 		self.corner_up = (MAP_SIZE_Y / 2) * -1
 		self.corner_down = (MAP_SIZE_Y / 2)
 		self.run = False
-		print(f"{MAGENTA} Room [{self.room_id}] game started with success")
+		self.timer = 0
+		print(f"{MAGENTA} Room [{self.room_id}] game started with success {RESET}")
 
 	def get_player(self, player):
 		return player.user
@@ -78,17 +87,29 @@ class PongGame:
 				self.p2_y += PLAYER_SPEED
 				if (self.p2_y + (PADDLE_SIZE / 2) > self.corner_down):
 					self.p2_y = self.corner_down - (PADDLE_SIZE / 2)
+		
 	
-	def check_run(self):
-		if self.status == 'ongoing':
-			return True
-		else:
-			return False
+	def check_end(self):
+		if self.score_p1 == SCORE_MAX:
+			self.winner_id = self.p1
+			self.loser_id = self.p2
+			self.winner_name = self.p1_name
+			self.loser_name = self.p2_name
+			self.status = 'finished'
+		elif self.score_p2 == SCORE_MAX:
+			self.winner_id = self.p2
+			self.loser_id = self.p1
+			self.winner_name = self.p2_name
+			self.loser_name = self.p1_name
+			self.status = 'finished'
 		
 	def update_game_state(self):
-		self.ball.move()
-		self.handle_collision()
-
+		if self.status == 'ongoing' and self.timer == 0:
+			self.ball.move()
+			self.handle_collision()
+		if self.timer > 0:
+			self.timer -= 1
+		self.check_end()
 		game_state = {
             'ball_posX': self.ball.x,
             'ball_posY': self.ball.y,
@@ -96,13 +117,17 @@ class PongGame:
             'p2_posY': self.p2_y,
             'p1_score': self.score_p1,
             'p2_score': self.score_p2,
+			'status': self.status,
+			'winner_id': self.winner_id,
+			'loser_id': self.loser_id,
+			'winner_name': self.winner_name,
+			'loser_name': self.loser_name,
+			'p1_name': self.p1_name,
+			'p2_name': self.p2_name,
+			'p1_id': self.p1,
+			'p2_id': self.p2,
         }
 		return game_state
-	
-
-	# def checkColPlayers(self):
-	# 	if self.ball_pos_x - (BALL_SIZE / 2) < -6 + (PADDLE_WIDTH / 2):
-	# 		if self.ball_pos_y
 
 	def handle_collision(self):
 		if self.ball.y > (MAP_SIZE_Y / 2) - (BALL_SIZE / 2):
@@ -121,6 +146,9 @@ class PongGame:
 					self.ball.y_vel = difference_in_y / reduction_factor
 				elif self.ball.x <= (MAP_SIZE_X / 2) * -1:
 					self.ball.x = 0
+					self.ball.y = random.uniform(-4, 4)
+					self.score_p2 += 1
+					self.timer = TIMER
 		else:
 			#check right paddle
 			if self.ball.x + (BALL_SIZE / 2) >= (MAP_SIZE_X / 2) - (PADDLE_WIDTH / 2):
@@ -132,16 +160,29 @@ class PongGame:
 					self.ball.y_vel = difference_in_y / reduction_factor
 				elif self.ball.x >= (MAP_SIZE_X / 2):
 					self.ball.x = 0
+					self.score_p1 += 1
+					self.ball.y = random.uniform(-4, 4)
+					self.timer = TIMER
 
 
 
 	def get_game_state(self):
-		pass
+		game_state = {
+            'ball_posX': self.ball.x,
+            'ball_posY': self.ball.y,
+            'p1_posY': self.p1_y,
+            'p2_posY': self.p2_y,
+            'p1_score': self.score_p1,
+            'p2_score': self.score_p2,
+			'status': self.status,
+        }
+		return game_state
 
 	def log_game(self):
-		print(f"{MAGENTA}Game [{self.game_id}]")
-		print(f"{MAGENTA}p1 [{self.p1}]")		
-		print(f"{MAGENTA}p2 [{self.p2}]")
+		print(f"{MAGENTA}p1_id [{self.p1}]")		
+		print(f"{MAGENTA}p2_id [{self.p2}]")
+		print(f"{MAGENTA}p1_name [{self.p1_name}]")
+		print(f"{MAGENTA}p2_name [{self.p2_name}]")
 		print(f"{MAGENTA}ball_pos_x [{self.ball.x}]")
 		print(f"{MAGENTA}ball_pos_y [{self.ball.y}]")
 		print(f"{MAGENTA}p1_pos [{self.p1_y}]")
@@ -149,4 +190,5 @@ class PongGame:
 		print(f"{MAGENTA}score_p1 [{self.score_p1}]")
 		print(f"{MAGENTA}score_p2 [{self.score_p2}]")
 		print(f"{MAGENTA}status [{self.status}]")
-		print(f"{MAGENTA}map [{self.map}] {RESET}")
+		print(f"{MAGENTA}winner: [{self.winner_id}] {RESET}")
+		print(f"{MAGENTA}loser: [{self.loser_id}]{RESET}")

@@ -106,28 +106,25 @@ Router.prototype = {
     },
 
     checkUserIsLog: async function() {
+        console.log("OUIIIIII PUTAAAAAAAAAAAIN");
         const url = backendUrl + '/authentification/user_is_log/';
-        try {
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: "include",
-            });
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: "include",
+        });
 
-            if (!response.ok) {
-                return Promise.resolve(false);
-            }
-
-            const data = await response.json();
-            connected_user = data.username;
-
-            return Promise.resolve(true);
-        } catch (error) {
-            console.error("Error checking user log (check UserIsLog):", error);
+        if (!response.ok) {
+            console.log("Error response: " + response.status)
             return Promise.resolve(false);
         }
+        console.log("response: " + response.status)
+        const data = await response.json();
+        connected_user = data.username;
+
+        return Promise.resolve(true);
     },
 
     redirectUser: async function(htmlName) {

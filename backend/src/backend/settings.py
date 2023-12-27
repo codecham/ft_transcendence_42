@@ -14,17 +14,18 @@ from pathlib import Path
 import os
 from django.db import connection
 from corsheaders.defaults import default_headers
-import time
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-# dotenv_path = os.path.join(BASE_DIR.parent, '.env')
-# with open(dotenv_path) as f:
-# 	for line in f:
-# 		if line.strip() and not line.startswith("#"):
-# 			key, value = line.strip().split("=")
-# 			os.environ[key] = value
+dotenv_path = os.path.join(BASE_DIR.parent, '.env')
+with open(dotenv_path) as f:
+	for line in f:
+		if line.strip() and not line.startswith("#"):
+			key, value = line.strip().split("=")
+			os.environ[key] = value
+	
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -34,7 +35,7 @@ SECRET_KEY = 'django-insecure-t@(j%*y#c@qs^3mgdk8^1@#_kwde)vjy^eggiq)9-9*znztbz1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 
 # Application definition
@@ -102,7 +103,7 @@ DATABASES = {
         'NAME': os.environ.get("POSTGRES_DB"),
 		'USER': os.environ.get("POSTGRES_USER"),
 		'PASSWORD': os.environ.get("POSTGRES_PASSWORD"),
-		'HOST': 'db',
+		'HOST': '127.0.0.1',
 		'PORT': '5432',
     }
 }
@@ -152,8 +153,6 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-time.sleep(5.4)
 
 try:
 	with connection.cursor():

@@ -1,32 +1,51 @@
+
+<!-- LOBBY-DIV -->
 <div id="room-div" class="d-flex flex-column">
-    <div class="d-flex justify-content-between align-items-center">
-        <div class="custom-dropdown" style="height: 150px;"> <!-- Hauteur fixe pour le conteneur -->
-            <button class="btn btn-primary mx-5 custom-button" id="player-button">Players
-                <img class="player-logo" src="../../assets/icons/icon_player_dark.png">
-					<span id="nb_player_button"></span>
-					<div id="users-in-room">
-						<ul id="player-list">
-						</ul>
-					</div>
-            </button>
+    <div id="lobby-div">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="custom-dropdown" style="height: 150px;"> <!-- Hauteur fixe pour le conteneur -->
+                <button class="btn btn-primary mx-5 custom-button" id="player-button">Players
+                    <img class="player-logo" src="../../assets/icons/icon_player_dark.png">
+                        <span id="nb_player_button"></span>
+                        <div id="users-in-room">
+                            <ul id="player-list">
+                            </ul>
+                        </div>
+                </button>
+            </div>
+            <h1 class="text-center">Tournament</h1>
+            <div class="my-5 Username-dropdown" style="height: 150px;"> <!-- Hauteur fixe pour le conteneur -->
+                <button class="btn btn-primary mx-5 custom-button" id="username-btn"></button>
+            </div>
         </div>
-        <h1 class="text-center">Tournament</h1>
-        <div class="my-5 Username-dropdown" style="height: 150px;"> <!-- Hauteur fixe pour le conteneur -->
-            <button class="btn btn-primary mx-5 custom-button" id="username-btn"></button>
-        </div>
-    </div>
-    </div>
 
 
-    <div class="container-sm border p-3 center settings-container">
-        <h2 class="text-center">Settings</h2>
-        <p id="error-message"><p>
-		<div>
-            <ul id="player-list-settings">
-            </ul>
-			<ul id="settings-list">
-			</ul>
-		</div>
-        <button class="btn btn-outline-success center">Start Game</button>
+        <div class="container-sm border p-3 center settings-container">
+            <h2 class="text-center">Settings</h2>
+            <p id="error-message"><p>
+            <div>
+                <ul id="player-list-settings">
+                </ul>
+                <ul id="settings-list">
+                </ul>
+            </div>
+            <div id="start_button_div">
+                <button class="btn btn-outline-success center" id="start_btn_id" >Start Game</button>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- GAME_DIV -->
+<div id="pongDiv">
+    <h1>GAME DIV</h1>
+    <!-- <canvas id="pongCanvas" width="1200" height="800"></canvas> -->
+    <h1 id="score"></h1>
+</div>
+
+<!--ENDGAME DIV-->
+<div id ="endGameDiv">
+    <h1>ENDGAME DIV</h1>
+
+</div>
+
