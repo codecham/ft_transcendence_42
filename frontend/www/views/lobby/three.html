@@ -171,7 +171,7 @@
             }
            
             function  globe() {
-	            var Globe_g = new THREE.IcosahedronGeometry(1, 10); 
+	            var Globe_g = new THREE.IcosahedronGeometry(2, 10); 
 	            var Points_g = new THREE.BufferGeometry();
 	            Points_g.vertices = Globe_g.vertices;
   
@@ -184,10 +184,10 @@
 	            Globe2.add(Points);
 	            scene.add(Globe);
 	            scene.add(Globe2);
-	            Globe.position.x = 5;
-	            Globe.position.y = -5;
-	            Globe2.position.x = -5;
-	            Globe2.position.y = -5;
+	            Globe.position.x = 7.5;
+	            Globe.position.y = 0;
+	            Globe2.position.x = -7.5;
+	            Globe2.position.y = 0;
 	            Globe.layers.toggle(BLOOM_SCENE);
 	            Globe2.layers.toggle(BLOOM_SCENE);
             }
@@ -204,12 +204,12 @@
                 scene.traverse( darkenNonBloomed );
                 bloomComposer.render();
                 scene.traverse( restoreMaterial );
-                starsGroup.rotation.x += 0.0002;
-                starsGroup.rotation.y += 0.0002;
-                Globe.rotation.x += 0.001;
-	            Globe.rotation.y += 0.001;
-	            Globe2.rotation.x += 0.001;
-	            Globe2.rotation.y += 0.001;
+                starsGroup.rotation.x += 0.0005;
+                starsGroup.rotation.y += 0.0005;
+                Globe.rotation.x += 0.002;
+	            Globe.rotation.y += 0.002;
+	            Globe2.rotation.x += 0.002;
+	            Globe2.rotation.y += 0.002;
                 finalComposer.render();		
             };
         </script>

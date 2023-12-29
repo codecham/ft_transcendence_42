@@ -29,8 +29,7 @@
 }
 
 .container-button {
-    height: 30vh;
-	border-color: cyan !important;
+    height: 60vh;
 }
 
 .scale-btn {
@@ -45,9 +44,6 @@
     display: block;
 }
 
-.container-title {
-    border-color: cyan !important;
-}
 
 #container_tournament_id {
     display: none;
@@ -68,9 +64,4 @@
     padding: 5px 10px;
     margin: 0 5px;
     cursor: pointer;
-}
-
-.selected {
-    border-color: #007bff;
-    color: #007bff;
 }
