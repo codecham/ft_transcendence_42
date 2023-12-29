@@ -23,6 +23,7 @@ var textMesh;
 var font = undefined;
 let isRendering = false;
 let renderContainer = document.getElementById("pongDiv") 
+let firstGame = true;
 
 const params = {
 	threshold: 0,
@@ -350,13 +351,16 @@ function restoreMaterial( obj ){
 export function  startGame() {
 	isRendering = true;
 	renderContainer.style.display = 'block';
-	init();
-	wall3d();
-	player3d();
-	line3d();
-	ball3d();
-	initStars();
-	globe();
+	if (firstGame == true) {
+		init();
+		wall3d();
+		player3d();
+		line3d();
+		ball3d();
+		initStars();
+		globe();
+		firstGame = false;
+	}
 	render();
 }
 

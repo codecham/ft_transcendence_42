@@ -33,6 +33,14 @@
 	border-color: cyan !important;
 }
 
+.scale-btn {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+.scale-btn:hover {
+    transform: scale(1.1);
+}
+
 #container-button_id {
     display: block;
 }

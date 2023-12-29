@@ -24,6 +24,7 @@ class RoomPong:
 		self.status = 'lobby'
 		self.connected_players = []
 		self.current_game = None
+		self.current_tournament = None
 
 	#Add a player to the first slot
 	def add_player_to_first_available_slot(self, player):
@@ -51,6 +52,12 @@ class RoomPong:
 		print(f"{RED}Room [{self.room_id}]: player is not in the room.{RESET}")
 		return False
 	
+	def get_player_by_id(self, user_id):
+		for slot in self.players_slot:
+			if self.players_slot[slot].user_id == user_id:
+				return self.players_slot[slot]
+		return None
+
 	def get_slot(self):
 		return self.players_slot
 	
@@ -81,8 +88,6 @@ class RoomPong:
 
 	def get_player_by_slot(self, slot):
 		return self.players_slot.get(slot, None)
-
-
 
 	def room_is_full(self):
 		return len(self.connected_players) >= self.max_players
@@ -120,6 +125,22 @@ class RoomPong:
 
 	def set_current_game(self, game):
 		self.current_game = game
+
+
+	def change_player_name(self, user_id, new_name):
+		for slot, player_in_slot in self.players_slot.items():
+			if player_in_slot is not None and player_in_slot.name == new_name:
+				print(f"{RED}Name '{new_name}' already exists in the room.{RESET}")
+				return False
+
+		for slot, player_in_slot in self.players_slot.items():
+			if player_in_slot is not None and player_in_slot.user_id == user_id:
+				player_in_slot.name = new_name
+				print(f"{GREEN}Player name updated. New name: '{new_name}'{RESET}")
+				return True
+
+		print(f"{RED}Player with user_id {user_id} is not in the room.{RESET}")
+		return False
 
 
 

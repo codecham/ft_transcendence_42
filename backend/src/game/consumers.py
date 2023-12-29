@@ -82,11 +82,14 @@ class GameConsumer(AsyncWebsocketConsumer):
         
         if self.room.status == 'lobby':
             await self.handleNewUser()
+            await self.send_group_event('new_player_event', {})
         else:
             if not await self.reconnexion():
+                await self.close()
                 return
         await self.send_player_info()
-        await self.send_group_event('new_player_event', {})
+        if self.room.is_local == True:
+            await self.send_event_to_current_client('is_local', {})
 
 
 
@@ -121,14 +124,35 @@ class GameConsumer(AsyncWebsocketConsumer):
                 'error': "Room is full and game is already start"
             }))
             return False
+        self.player = self.room.get_player_by_id(self.player.user_id)
+        print(f"{GREEN}Reconnexion of {self.player.name}")
         self.room.add_player_connected(self.player)
         await self.channel_layer.group_add(self.room_id, self.channel_name)
-        return True
+        return await self.handleReconnexionScreen()
 
 
 
     async def send_player_info(self):
         await self.send_event_to_current_client("player_info", {'name': self.player.name, 'slot': self.player.slot, 'is_master': self.player.isMaster})
+    
+
+    async def handleReconnexionScreen(self):
+        if self.room.status == 'in_match':
+            await self.send_change_screen('game')
+            await self.send_start_game()
+        elif self.room.status == 'waiting_next_macth':
+            await self.send_change_screen('next_match')
+            player_1, player_2 = self.room.current_tournament.get_players_for_next_match()
+            await self.send_next_match_players(player_1, player_2)
+        else:
+            await self.send(text_data=json.dumps({
+                'error': "All matches in this room are over"
+            }))
+            return False
+        return True
+
+
+            
 
 
 
@@ -139,8 +163,8 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         if self.room.is_player_connected(self.player):
             if self.room.status == 'lobby':
-                self.room.remove_player_connected(self.player)
-            self.room.remove_player_slot(self.player)
+                self.room.remove_player_slot(self.player)
+            self.room.remove_player_connected(self.player)
             await self.channel_layer.group_discard(self.room_id, self.channel_name)
             await self.send_group_event('leave_player_event', {})
 
@@ -236,6 +260,11 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def leave_player_event(self, event):
         await self.send_player_list_slot()
         await self.send_nb_player_connected()
+    
+    async def change_name_event(self, event):
+        await self.send_player_list_slot()
+        await self.send_nb_player_connected()
+
 
 
     #-------------------------------------------------------------------------
@@ -270,8 +299,15 @@ class GameConsumer(AsyncWebsocketConsumer):
     
     async def send_end_single_game(self, game_state):
         await self.send_event_to_all_clients('game_end', game_state)
+    
+    async def send_next_match_players(self, player1, player2):
+        await self.send_event_to_all_clients('player_next_match', {'player_1': player1.name, 'player_2' : player2.name})
 
-
+    async def send_end_game_tournament(self, game_state):
+        await self.send_event_to_all_clients('game_end_tournament', game_state)
+    
+    async def send_end_tournament(self, winner_name, matches_list):
+        await self.send_event_to_all_clients('tounrnament_end', {'winner': winner_name, 'matches_list': matches_list})
 
 
     #-------------------------------------------------------------------------
@@ -313,8 +349,18 @@ class GameConsumer(AsyncWebsocketConsumer):
             await self.input_key(data['key'])
         
         if data['type'] == 'action':
-           if data['data'] == 'startGame':
-            await self.startGame()
+            if data['data'] == 'startGame':
+                await self.startGame()
+
+            elif data['data'] == 'startNextGame':
+                await self.start_next_game()
+
+            elif data['data'] == 'getNextGame':
+                await self.get_next_game()
+
+            elif data['data'] == 'changeName':
+                await self.changeName(data['name'])
+
 
 
     #-------------------------------------------------------------------------
@@ -336,14 +382,21 @@ class GameConsumer(AsyncWebsocketConsumer):
             self.room.status = 'started'
             if self.room.is_local == True:
                 print(f"{GREEN}Room [{self.room_id}] start a local game (in building){RESET}") 
+                await self.localGameHandler()
             elif self.room.is_tournament == True:
-                print(f"{GREEN}Room [{self.room_id}] start a tournament (in building){RESET}") 
+                print(f"{GREEN}Room [{self.room_id}] start a tournament{RESET}") 
+                await self.startTournament()
             else:
                 print(f"{GREEN}Room [{self.room_id}] start a single game{RESET}")
                 await self.singleGameHandler()
 
     async def create_new_game(self, player1, player2):
         new_game = PongGame(self.room_id, player1, player2)
+        GameManager.set_game(self.room_id, new_game)
+        self.room.set_current_game(GameManager.get_game(self.room_id))
+
+    async def create_new_local_game(self, player1, player2):
+        new_game = PongGame(self.room_id, player1, player2, True)
         GameManager.set_game(self.room_id, new_game)
         self.room.set_current_game(GameManager.get_game(self.room_id))
 
@@ -357,25 +410,63 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.send_start_game()
         self.game_task = asyncio.create_task(self.handleGameRun())
 
+    async def localGameHandler(self):
+        player = self.room.get_player_by_slot(1)
+        player_1 = Player(player.user_id, 'player 1')
+        player_2 = Player(player.user_id, 'player 2')
+        player_1.slot = player.slot
+        player_2.slot = player.slot
+        await self.create_new_local_game(player_1, player_2)
+        await self.send_change_screen('game')
+        await self.send_start_game()
+        self.game_task = asyncio.create_task(self.handleGameRun())
+
+
 
 
     #-------------------------------------------------------------------------
     #                          STARTGAME functions
     #-------------------------------------------------------------------------
     async def handleGameRun(self):
+            self.room.status = 'in_match'
             game_state = self.room.current_game.update_game_state()
             while game_state['status'] == 'ongoing':
                 self.game = GameManager.get_game(self.room_id)
                 game_state = self.game.update_game_state()
                 await self.send_game_state(game_state)
                 await asyncio.sleep(0.1)
+
+            #save the game if not local
             if game_state['status'] == 'finished' and self.room.is_local == False:
                 await self.save_game_db(game_state)
                 await asyncio.sleep(0.1)
-            await self.send_change_screen('end_game')
-            await self.send_end_single_game(game_state)
-            self.room.status = 'finished'
-            await asyncio.sleep(0.1)
+
+            print(f"{MAGENTA} IS TOURNAMENT = {self.room.is_tournament} {RESET}")
+            print(f"{MAGENTA} status = {game_state['status']} {RESET}")
+            #end single game if not tournament
+            if game_state['status'] == 'finished' and self.room.is_tournament == False:
+                await self.send_change_screen('end_game')
+                await self.send_end_single_game(game_state)
+                self.room.status = 'finished'
+                await asyncio.sleep(0.1)
+            
+            #end tournaement
+            elif game_state['status'] == 'finished' and self.room.is_tournament == True:
+                self.room.current_tournament.save_and_set_next_mach(game_state['winner_name'], game_state['loser_name'])
+                await asyncio.sleep(0.1)
+                if self.room.current_tournament.finished == False:
+                    print(f"{MAGENTA} Send End Match {RESET}")
+                    await self.send_change_screen('end_game_tournament')
+                    await self.send_end_game_tournament(game_state)
+                    self.room.status = 'waiting_next_macth'
+                else:
+                    print(f"{MAGENTA} Send End Tournament {RESET}")
+                    matches_list = self.room.current_tournament.get_matches_list()
+                    winner_name = self.room.current_tournament.winner
+                    await self.send_change_screen('end_tournament')
+                    await self.send_end_tournament(winner_name, matches_list)
+                    self.room.status = 'finished_tournament'
+            time.sleep(1)
             if self.game_task:
                 self.game_task.cancel()
 
@@ -389,3 +480,53 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def input_key(self, key):
         if self.room.current_game != None:
             self.room.current_game.input_move(self.player.user_id, key)
+
+    async def changeName(self, name):
+        if self.room.change_player_name(self.player.user_id, name):
+            self.player.name = name
+            await self.send_player_info()
+            await self.send_group_event('change_name_event', {})
+        else:
+            await self.send_event_to_current_client("name_already_use", {'name': name})
+
+
+
+    #-------------------------------------------------------------------------
+    #                          Tournament functions
+    #-------------------------------------------------------------------------
+    
+    async def tournamentGameHandler(self, player_1, player_2):
+        await self.create_new_game(player_1, player_2)
+        await self.send_change_screen('game')
+        await self.send_start_game()
+        self.game_task = asyncio.create_task(self.handleGameRun())
+
+
+    async def create_tournament(self):
+        tournament_instance = Tournament(self.room.connected_players)
+        GameManager.set_tournament(self.room_id, tournament_instance)
+        self.room.current_tournament = GameManager.get_tournament(self.room_id)
+
+    async def startTournament(self):
+        self.room.status = 'waiting_next_macth'
+        await self.create_tournament()
+        player_1, player_2 = self.room.current_tournament.get_players_for_next_match()
+        print(f'{MAGENTA}Players for next match: {player_1.name, player_2.name}{RESET}')
+        await self.send_change_screen('next_match')
+        await self.send_next_match_players(player_1, player_2)
+
+    
+    async def start_next_game(self):
+        print(f"{MAGENTA}Start Next Game event received {RESET}")
+        player_1, player_2 = self.room.current_tournament.get_players_for_next_match()
+        await self.tournamentGameHandler(player_1, player_2)
+
+    async def get_next_game(self):
+        player_1, player_2 = self.room.current_tournament.get_players_for_next_match()
+        await self.send_change_screen('next_match')
+        await self.send_next_match_players(player_1, player_2)
+
+
+
+
+

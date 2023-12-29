@@ -1,5 +1,29 @@
 document.getElementById('single_game_btn').addEventListener('click', createRoom);
 document.getElementById('tournament_btn').addEventListener('click', createTournament);
+document.getElementById('Local_game_btn').addEventListener('click', createLocalGame);
+
+
+function createLocalGame() {
+	const url = backendUrl + "/game/create_local/";
+
+	fetch(url)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error(`HTTP error! Status: ${response.status}`);
+			}
+			return response.json();
+		})
+		.then(data => {
+			const roomId = data.room_id;
+			console.log(`Room created with success: Room_id: ${roomId}`);
+			window.location.hash = `room?room_id=${roomId}`;
+		})
+		.catch(error => {
+			console.error('Error while room creation', error);
+		});
+
+}
+
 
 function createRoom() {
 	const url = backendUrl + "/game/create_room/";

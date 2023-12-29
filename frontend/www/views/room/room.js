@@ -218,6 +218,31 @@ function change_screen(data) {
     }
 }
 
+function islocal() {
+    let controlDiv = document.getElementById('controls');
+    let title = document.createElement('h5');
+    let control_1 = document.createElement('div');
+    let control_2 = document.createElement('div');
+
+    title.textContent = 'Controls:';
+    control_1.textContent = 'Player 1: UP: W | DOWN: S';
+    control_2.innerHTML = 'Player 2: UP: &uarr; | DOWN: &darr;';
+    control_1.style.color = 'white';
+    control_2.style.color = 'white';
+    controlDiv.appendChild(title);
+    controlDiv.appendChild(control_1);
+    controlDiv.appendChild(control_2);
+    controlDiv.appendChild(document.createElement('br'))
+
+
+    let titlePage = document.getElementById('title_page');
+    titlePage.innerText = "";
+    titlePage.innerText = "Local Game";
+
+    const playerListElem = document.getElementById("player-list-settings");
+    playerListElem.style.display = 'none';
+}
+
 
 
 /*
@@ -246,6 +271,9 @@ function handleMessage(data) {
             break;
         case 'game_end':
             endGame(data.data)
+            break;
+        case 'is_local':
+            islocal()
             break;
         default:
             console.warn('Unknown message type:', data.type);

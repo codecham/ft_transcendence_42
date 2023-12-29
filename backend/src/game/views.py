@@ -20,3 +20,12 @@ def create_tournement_view(request, nb_player):
 
 	return (JsonResponse({"room_id": new_room_id}))
 
+@login_required
+def create_local_game_view(request):
+	new_room = Room.objects.create(creator=request.user, max_player=1, is_local=True)
+	new_room_id = new_room.room_id
+	return (JsonResponse({"room_id": new_room_id}))
+
+
+
+

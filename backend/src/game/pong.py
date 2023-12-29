@@ -15,6 +15,10 @@ CYAN = "\033[96m"
 
 UP = 'ArrowDown'
 DOWN = 'ArrowUp'
+UP_LOCAL_1 = 's'
+DOWN_LOCAL_1 = 'w'
+UP_LOCAL_2 = 'ArrowDown'
+DOWN_LOCAL_2 = 'ArrowUp'
 PADDLE_SIZE = 1.5
 PADDLE_WIDTH = 0.2
 MAP_SIZE_X = 12
@@ -41,7 +45,7 @@ class Ball:
 		self.y += self.y_vel
 
 class PongGame:
-	def __init__(self, room_id, player1, player2):
+	def __init__(self, room_id, player1, player2, is_local=False):
 		self.room_id = room_id
 		self.p1 = player1.user_id
 		self.p2 = player2.user_id
@@ -61,6 +65,7 @@ class PongGame:
 		self.corner_down = (MAP_SIZE_Y / 2)
 		self.run = False
 		self.timer = 0
+		self.is_local = is_local
 		print(f"{MAGENTA} Room [{self.room_id}] game started with success {RESET}")
 
 	def get_player(self, player):
@@ -69,24 +74,45 @@ class PongGame:
 	def input_move(self, player_id, key):
 		if player_id != self.p1 and player_id != self.p2:
 			return
-		if player_id == self.p1:
-			if key == UP:
+		if self.is_local == False:
+			if player_id == self.p1:
+				if key == UP:
+					self.p1_y -= PLAYER_SPEED
+					if (self.p1_y - (PADDLE_SIZE / 2) < self.corner_up):
+						self.p1_y = self.corner_up + (PADDLE_SIZE / 2)
+				elif key == DOWN:
+					self.p1_y += PLAYER_SPEED
+					if (self.p1_y + (PADDLE_SIZE / 2) > self.corner_down):
+						self.p1_y = self.corner_down - (PADDLE_SIZE / 2)
+			elif player_id == self.p2:
+				if key == UP:
+					self.p2_y -= PLAYER_SPEED
+					if (self.p2_y - (PADDLE_SIZE / 2) < self.corner_up):
+						self.p2_y = self.corner_up + (PADDLE_SIZE / 2)
+				elif key == DOWN:
+					self.p2_y += PLAYER_SPEED
+					if (self.p2_y + (PADDLE_SIZE / 2) > self.corner_down):
+						self.p2_y = self.corner_down - (PADDLE_SIZE / 2)
+		else:
+			if key == UP_LOCAL_1:
 				self.p1_y -= PLAYER_SPEED
 				if (self.p1_y - (PADDLE_SIZE / 2) < self.corner_up):
 					self.p1_y = self.corner_up + (PADDLE_SIZE / 2)
-			elif key == DOWN:
+			elif key == DOWN_LOCAL_1:
 				self.p1_y += PLAYER_SPEED
 				if (self.p1_y + (PADDLE_SIZE / 2) > self.corner_down):
 					self.p1_y = self.corner_down - (PADDLE_SIZE / 2)
-		elif player_id == self.p2:
-			if key == UP:
+			elif key == UP_LOCAL_2:
 				self.p2_y -= PLAYER_SPEED
 				if (self.p2_y - (PADDLE_SIZE / 2) < self.corner_up):
 					self.p2_y = self.corner_up + (PADDLE_SIZE / 2)
-			elif key == DOWN:
+			elif key == DOWN_LOCAL_2:
 				self.p2_y += PLAYER_SPEED
 				if (self.p2_y + (PADDLE_SIZE / 2) > self.corner_down):
 					self.p2_y = self.corner_down - (PADDLE_SIZE / 2)
+			
+
+
 		
 	
 	def check_end(self):

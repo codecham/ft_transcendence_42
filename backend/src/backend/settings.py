@@ -25,6 +25,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 		if line.strip() and not line.startswith("#"):
 # 			key, value = line.strip().split("=")
 # 			os.environ[key] = value
+	
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -34,7 +36,7 @@ SECRET_KEY = 'django-insecure-t@(j%*y#c@qs^3mgdk8^1@#_kwde)vjy^eggiq)9-9*znztbz1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 
 
 # Application definition

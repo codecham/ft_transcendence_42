@@ -21,31 +21,98 @@
 
 
         <div class="container-sm border p-3 center settings-container">
-            <h2 class="text-center">Settings</h2>
+            <h2 class="text-center">Room</h2>
             <p id="error-message"><p>
             <div>
                 <ul id="player-list-settings">
                 </ul>
                 <ul id="settings-list">
+                  <input type="text" id="name-input" placeholder="Enter your name">
+                  <button class="btn btn-outline-success" id="change_name_btn">Change Name</button>
+                  <p id="error-message-name"><p>
                 </ul>
             </div>
             <div id="start_button_div">
                 <button class="btn btn-outline-success center" id="start_btn_id" >Start Game</button>
             </div>
         </div>
+        <!-- <div id="link_share">
+          <label for="roomLink">Share link:</label>
+          <input type="text" id="roomLink" value="" readonly>
+          <button id="copyButton">Copy</button>
+        </div> -->
     </div>
 </div>
 
 <!-- GAME_DIV -->
 <div id="pongDiv">
-    <h1>GAME DIV</h1>
-    <!-- <canvas id="pongCanvas" width="1200" height="800"></canvas> -->
-    <h1 id="score"></h1>
 </div>
+
+<!-- NEXT MATCH DIV -->
+<div id="nextMatchDiv" class="container-sm p-3 center border nextMatchContainer">
+    <div class="row justify-content-md-center">
+      <div class="col-11">
+        <h3 class="text-center mb-4">Next Match</h3>
+        <div class="row">
+          <div class="col-6">
+            <p class="player-label" id="player-label_1">Player 1:</p>
+            <p><span id="player1Name"></span></p>
+          </div>
+          <div class="col-6">
+            <p class="player-label" id="player-label_2">Player 2:</p>
+            <p><span id="player2Name"></span></p>
+          </div>
+        </div>
+        <div class="text-center">
+          <button id="startNextMatchButton" class="btn btn-outline-success center">Start</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<!--endGameTournament DIV-->
+<div id="endGameTournamentDiv">
+    <div class="container-sm p-3 center endDivContainer">
+        <div class="game-result-container">
+          <div class="row">
+            <div class="col-md-6 my-5">
+              <h4 id="winner_title_tournament">WINNER</h4>
+              <p class="endGameName" id="winner_name_tournament"></p>
+            </div>
+            <div class="col-md-6 my-5">
+              <h4 id="winner_title_tournament"> LOSER</h4>
+              <p class="endGameName" id="loser_name_tournament"></p>
+            </div>
+            <div class="text-center">
+                <button id="getNextMatchButton" class="btn btn-outline-success center">Next</button>
+              </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div id="endTournamendDiv">
+    <h3 id="winner_tournament_title">WINNER: <span id="winner_name_end_tournament"></span></h3>
+    <div id="matchList">
+  </div>
+
 
 <!--ENDGAME DIV-->
 <div id ="endGameDiv">
-    <h1>ENDGAME DIV</h1>
-
+    <div class="container-sm p-3 center endDivContainer">
+        <div class="game-result-container">
+          <div class="row">
+            <div class="col-md-6 my-5">
+              <h4 id="winner_title">WINNER</h4>
+              <p class="endGameName" id="winner_name"></p>
+            </div>
+            <div class="col-md-6 my-5">
+              <h4 id="loser_title"> LOSER</h4>
+              <p class="endGameName" id="loser_name"></p>
+            </div>
+          </div>
+        </div>
+      </div>
 </div>
 
