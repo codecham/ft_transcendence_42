@@ -1,6 +1,6 @@
 COMPOSE_FILE = docker-compose.yml
 DOCKER = docker
-FRONTEND_ID = f516c4fb4073 #Replace by the id of the frontend container (docker ps)
+FRONTEND_ID = dd01c03c6445
 
 
 #start the database containers
