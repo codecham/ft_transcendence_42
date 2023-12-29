@@ -21,6 +21,9 @@ var scoreLeft = 0;
 var scoreRight = 0;
 var textMesh;
 var font = undefined;
+var scaleUp = true;
+var scaleValue = 1.0;
+var audio = new Audio("../../assets/music/Space_Linotte.mp3");
 let isRendering = false;
 let renderContainer = document.getElementById("pongDiv") 
 let firstGame = true;
@@ -220,7 +223,7 @@ export function  initStars() {
 	starsGroup = new THREE.Group();
 	scene.add(starsGroup);
 	const starsGeometry = new THREE.BufferGeometry();
-	const starsMaterial = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 1 });
+	const starsMaterial = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 2 });
   
 	const starsVertices = [];
   
@@ -242,7 +245,7 @@ export function  initStars() {
   
   
 export function  globe() {
-	var Globe_g = new THREE.IcosahedronGeometry(2, 4); 
+	var Globe_g = new THREE.IcosahedronGeometry(2, 10); 
 	var Points_g = new THREE.BufferGeometry();
 	Points_g.vertices = Globe_g.vertices;
   
@@ -297,6 +300,23 @@ function refreshText() {
   
 	group.remove(textMesh);
 	initText();
+}
+
+function	scaleGlobe()
+{
+	if (scaleUp) {
+		scaleValue += 0.002;
+		if (scaleValue >= 1.2) {
+			scaleUp = false;
+		}
+	} else {
+		scaleValue -= 0.002;
+		if (scaleValue <= 1.0) {
+			scaleUp = true;
+		}
+	}
+	Globe.scale.set(scaleValue, scaleValue, scaleValue);
+	Globe2.scale.set(scaleValue, scaleValue, scaleValue);
 }
   
   /////
@@ -360,6 +380,9 @@ export function  startGame() {
 		initStars();
 		globe();
 		firstGame = false;
+		audio.play();
+		audio.loop = true;
+		audio.volume = 0.5;
 	}
 	render();
 }
@@ -396,10 +419,11 @@ function render () {
 		scene.traverse( restoreMaterial );
 		starsGroup.rotation.x += 0.0002;
 		starsGroup.rotation.y += 0.0002;
-		Globe.rotation.x += 0.001;
-		Globe.rotation.y += 0.001;
-		Globe2.rotation.x += 0.001;
-		Globe2.rotation.y += 0.001;
+		Globe.rotation.x += 0.003;
+		Globe.rotation.y += 0.003;
+		Globe2.rotation.x += 0.003;
+		Globe2.rotation.y += 0.003;
+		scaleGlobe();
 		updatedata();
 		loadFont();
 		scene.add(group);
