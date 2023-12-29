@@ -1,24 +1,36 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile</title>
 </head>
+
 <body>
-    <div class="container mt-5">
-        <div class="mb-3">
-            <form id="avatarForm" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label for="fileInput" class="form-label">Profile Image</label>
-                    <input type="file" class="form-control" id="fileInput" accept=".jpg, .jpeg, .png" required>
-                    <div class="form-text">Accepted formats: .jpg, .jpeg, .png</div>
-                </div>
-                <button type="submit" class="btn btn-primary">Apply</button>
-            </form>
-        </div>
+
+    <div class="container">
+        <h2>Edit Profile</h2>
+        <form id="editProfileForm">
+            <label for="username">New Username:</label>
+            <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+"
+                title="Username must contain only alphanumeric characters." required>
+
+            <label for="password">New Password:</label>
+            <input type="password" id="password" name="password" pattern="^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[A-Z]).{8,}$"
+                title="Password must contain at least 8 characters, 1 digit, 1 special character, and 1 uppercase letter"
+                required>
+
+            <label for="fileInput" class="form-label">Profile Image</label>
+            <input type="file" class="form-control" id="fileInput" accept=".jpg, .jpeg, .png">
+            <div class="form-text">Accepted formats: .jpg, .jpeg, .png</div>
+
+            <button type="button" class="btn btn-primary" id="savebtn">Save</button>
+        </form>
+        
     </div>
+
     <script src="edit-profile.js"></script>
 </body>
+
 </html>
