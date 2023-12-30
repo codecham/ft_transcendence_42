@@ -1,44 +1,3 @@
-body {
-    font-family: Arial, sans-serif;
-}
-
-.container {
-    width: 50%;
-    margin: 50px auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-label {
-    margin-bottom: 8px;
-}
-
-input {
-    padding: 8px;
-    margin-bottom: 16px;
-}
-
-button {
-    padding: 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #45a049;
-}
-
-/* Styles from the provided CSS */
-
 @font-face {
     font-family: 'BruceForever';
     src: url('../../assets/font/bruce-forever-font/BruceForeverRegular-X3jd2.ttf') format('truetype');
@@ -49,7 +8,7 @@ button:hover {
     src: url('../../assets/font/aquire-font/Aquire-BW0ox.otf') format('truetype');
 }
 
-#profile-div {
+#edit-profile-div {
     margin: 0;
     padding: 0;
     display: flex;
@@ -58,10 +17,16 @@ button:hover {
     height: 100vh;
 }
 
-#profile-div h1 {
-    font-size: 5em;
+input {
+    padding: 8px;
+    margin-bottom: 16px;
+    align-items: center;
+    justify-content: center;
+}
+
+#edit-profile-div h1 {
+    font-size: 4em;
     color: cyan;
-    margin-bottom: 30px;
     font-family: 'BruceForever';
     text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
 }
@@ -76,14 +41,19 @@ button:hover {
 }
 
 #username_div h2 {
-    font-size: 4em; 
+    font-size: 2em; 
     font-family: 'Aquire';
     text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
 }
 
-#username_div a {
-    font-size: 1em; 
+#password_div h2 {
+    font-size: 2em; 
     font-family: 'Aquire';
     text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
-    align-items: center;
+}
+
+#avatar_div h2 {
+    font-size: 2em; 
+    font-family: 'Aquire';
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
 }

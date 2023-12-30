@@ -1,36 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
+<div id="edit-profile-div" class="d-flex flex-column align-items-center justify-content-start mt-5">
+    <h1>EDIT</h1>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile</title>
-</head>
-
-<body>
-
-    <div class="container">
-        <h2>Edit Profile</h2>
-        <form id="editProfileForm">
-            <label for="username">New Username:</label>
-            <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+"
-                title="Username must contain only alphanumeric characters." required>
-
-            <label for="password">New Password:</label>
-            <input type="password" id="password" name="password" pattern="^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[A-Z]).{8,}$"
-                title="Password must contain at least 8 characters, 1 digit, 1 special character, and 1 uppercase letter"
-                required>
-
-            <label for="fileInput" class="form-label">Profile Image</label>
-            <input type="file" class="form-control" id="fileInput" accept=".jpg, .jpeg, .png">
-            <div class="form-text">Accepted formats: .jpg, .jpeg, .png</div>
-
-            <button type="button" class="btn btn-primary" id="savebtn">Save</button>
-        </form>
-        
+    <div class="mt-3 text-center" id="username_div">
+        <h2>NEW USERNAME</h2>
+        <input type="text" id="username" name="username" pattern="[a-zA-Z0-9]+"
+            title="Username must contain only alphanumeric characters." required>
     </div>
 
-    <script src="edit-profile.js"></script>
-</body>
+    <div class="mt-3 text-center" id="password_div">
+        <h2>NEW PASSWORD</h2>
+        <input type="password" id="password" name="password" pattern="^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[A-Z]).{8,}$"
+            title="Password must contain at least 8 characters, 1 digit, 1 special character, and 1 uppercase letter"
+            required>
+    </div>
 
-</html>
+    <div class="mt-3 text-center" id="avatar_div">
+        <h2>NEW AVATAR</h2>
+        <input type="file" class="form-control" id="fileInput" accept=".jpg, .jpeg, .png">
+        <div class="form-text">Accepted formats: .jpg, .jpeg, .png</div>
+    </div>
+
+    <div class="mt-3 text-center" id="save_div">
+        <button class="btn btn-primary" type="button" id="savebtn">
+            Save
+        </button>
+    </div>
+
+</div>
