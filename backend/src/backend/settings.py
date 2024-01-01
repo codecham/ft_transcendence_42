@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 	'game',
 	'corsheaders',
 	'user_profile',
+	'sslserver',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -208,3 +209,5 @@ SESSION_SAVE_EVERY_REQUEST = True
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+SECURE_SSL_REDIRECT = True

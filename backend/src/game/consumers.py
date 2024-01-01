@@ -407,7 +407,9 @@ class GameConsumer(AsyncWebsocketConsumer):
         player_2 = self.room.get_player_by_slot(2)
         await self.create_new_game(player_1, player_2)
         await self.send_change_screen('game')
+        await asyncio.sleep(0.1)
         await self.send_start_game()
+        await asyncio.sleep(0.1)
         self.game_task = asyncio.create_task(self.handleGameRun())
 
     async def localGameHandler(self):
@@ -418,7 +420,9 @@ class GameConsumer(AsyncWebsocketConsumer):
         player_2.slot = player.slot
         await self.create_new_local_game(player_1, player_2)
         await self.send_change_screen('game')
+        await asyncio.sleep(0.1)
         await self.send_start_game()
+        await asyncio.sleep(0.1)
         self.game_task = asyncio.create_task(self.handleGameRun())
 
 
@@ -434,7 +438,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 self.game = GameManager.get_game(self.room_id)
                 game_state = self.game.update_game_state()
                 await self.send_game_state(game_state)
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0.02)
 
             #save the game if not local
             if game_state['status'] == 'finished' and self.room.is_local == False:
@@ -498,7 +502,9 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def tournamentGameHandler(self, player_1, player_2):
         await self.create_new_game(player_1, player_2)
         await self.send_change_screen('game')
+        await asyncio.sleep(0.1)
         await self.send_start_game()
+        await asyncio.sleep(0.1)
         self.game_task = asyncio.create_task(self.handleGameRun())
 
 

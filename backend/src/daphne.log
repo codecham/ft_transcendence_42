@@ -1,0 +1,4 @@
+2024-01-01 22:16:49,255 INFO     Starting server at ssl:8001:privateKey=cert\.key:certKey=cert\.crt
+2024-01-01 22:16:49,256 INFO     HTTP/2 support not enabled (install the http2 and tls Twisted extras)
+2024-01-01 22:16:49,257 INFO     Configuring endpoint ssl:8001:privateKey=cert\.key:certKey=cert\.crt
+2024-01-01 22:16:49,268 INFO     Listening on TCP address 0.0.0.0:8001

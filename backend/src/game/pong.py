@@ -27,12 +27,13 @@ BALL_SPEED_X = 0.3
 BALL_SPEED_Y = 0.1
 BALL_SIZE = 0.2
 PLAYER_SPEED = 0.3
-SCORE_MAX = 2
-TIMER = 10
+SCORE_MAX = 10
+TIMER = 40
+MAX_SPEED = 0.2
 
 
 class Ball:
-	MAX_VEL = PLAYER_SPEED
+	MAX_VEL = MAX_SPEED
 
 	def __init__(self, x, y):
 		self.x = x
@@ -166,6 +167,7 @@ class PongGame:
 			if self.ball.x - (BALL_SIZE / 2) <= ((MAP_SIZE_X / 2) * -1) + (PADDLE_WIDTH / 2):
 				if self.ball.y - (BALL_SIZE / 2) <= self.p1_y + (PADDLE_SIZE / 2) and self.ball.y + (BALL_SIZE / 2) >= self.p1_y - (PADDLE_SIZE / 2):
 					#left paddle hit
+					self.ball.x = ((MAP_SIZE_X / 2) * - 1) + (PADDLE_WIDTH / 2) + (BALL_SIZE / 2)
 					self.ball.x_vel *= -1
 					difference_in_y = self.ball.y - self.p1_y
 					reduction_factor = (PADDLE_SIZE / 2) / self.ball.MAX_VEL
@@ -173,6 +175,8 @@ class PongGame:
 				elif self.ball.x <= (MAP_SIZE_X / 2) * -1:
 					self.ball.x = 0
 					self.ball.y = random.uniform(-4, 4)
+					# self.ball.x_vel = random.uniform((MAX_SPEED * - 1), 0)
+					# self.ball.y_vel = random.uniform((MAX_SPEED * - 1), (MAX_SPEED))
 					self.score_p2 += 1
 					self.timer = TIMER
 		else:
@@ -180,6 +184,7 @@ class PongGame:
 			if self.ball.x + (BALL_SIZE / 2) >= (MAP_SIZE_X / 2) - (PADDLE_WIDTH / 2):
 				if self.ball.y - (BALL_SIZE / 2) <= self.p2_y + (PADDLE_SIZE / 2) and self.ball.y + (BALL_SIZE / 2) >= self.p2_y - (PADDLE_SIZE / 2):
 					#right paddle hit
+					self.ball.x = ((MAP_SIZE_X / 2)) - (PADDLE_WIDTH / 2) - (BALL_SIZE / 2)
 					self.ball.x_vel *= -1
 					difference_in_y = self.ball.y - self.p2_y
 					reduction_factor = (PADDLE_SIZE / 2) / self.ball.MAX_VEL
@@ -188,6 +193,8 @@ class PongGame:
 					self.ball.x = 0
 					self.score_p1 += 1
 					self.ball.y = random.uniform(-4, 4)
+					# self.ball.x_vel = random.uniform((MAX_SPEED), 0)
+					# self.ball.y_vel = random.uniform((MAX_SPEED * - 1), (MAX_SPEED))
 					self.timer = TIMER
 
 
