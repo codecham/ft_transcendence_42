@@ -24,20 +24,15 @@ input {
     justify-content: center;
 }
 
+#accepted_format {
+    color: white;
+}
+
 #edit-profile-div h1 {
     font-size: 4em;
     color: cyan;
     font-family: 'BruceForever';
     text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
-}
-
-.avatar-frame {
-    border: 2px solid #000;
-    padding: 10px;
-    width: 200px;
-    height: 200px; 
-    text-align: center; 
-    background-color: gray;
 }
 
 #username_div h2 {
