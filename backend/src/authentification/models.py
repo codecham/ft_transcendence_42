@@ -7,7 +7,6 @@ def default_profile_image_path():
 class UserProfile(AbstractUser):
     id = models.AutoField(primary_key = True)  #unique ID
     online_status = models.BooleanField(default=False)
-    #profile_image = models.CharField(max_length=255, blank=True, null=True, default=default_profile_image_path)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True, default=default_profile_image_path)
 
 
