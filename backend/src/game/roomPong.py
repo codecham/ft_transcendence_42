@@ -25,6 +25,8 @@ class RoomPong:
 		self.connected_players = []
 		self.current_game = None
 		self.current_tournament = None
+		self.player_speed = None
+
 
 	#Add a player to the first slot
 	def add_player_to_first_available_slot(self, player):
@@ -141,6 +143,3 @@ class RoomPong:
 
 		print(f"{RED}Player with user_id {user_id} is not in the room.{RESET}")
 		return False
-
-
-

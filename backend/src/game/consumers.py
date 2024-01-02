@@ -360,6 +360,9 @@ class GameConsumer(AsyncWebsocketConsumer):
 
             elif data['data'] == 'changeName':
                 await self.changeName(data['name'])
+        if data['type'] == 'command':
+            if data['commad'] == 'player_speed':
+                await
 
 
 
@@ -392,6 +395,7 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def create_new_game(self, player1, player2):
         new_game = PongGame(self.room_id, player1, player2)
+
         GameManager.set_game(self.room_id, new_game)
         self.room.set_current_game(GameManager.get_game(self.room_id))
 
@@ -534,5 +538,15 @@ class GameConsumer(AsyncWebsocketConsumer):
 
 
 
+    #-------------------------------------------------------------------------
+    #                          CLI functions
+    #-------------------------------------------------------------------------
+    
 
+    # async def set_player_speed(self, value):
+    #     room = RoomManager.get_game(self.room_id)
+    #     #verification...
 
+    #     room.player_speed = value
+        
+    #     await self.send_event_to_current_client('error_cli', {'error_message' : 'incorect value'})

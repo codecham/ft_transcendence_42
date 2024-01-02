@@ -2,7 +2,7 @@
 
 // var backendUrl = "http://localhost:8080/api";
 var backendUrl = "https://localhost:8443/api";
-var socketUrl = "ws://localhost:8443/ws";
+var socketUrl = "ws://localhost:8443/ws/";
 var connected_user = "";
 
 (function () {

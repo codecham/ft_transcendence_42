@@ -26,10 +26,10 @@ MAP_SIZE_Y = 8
 BALL_SPEED_X = 0.3
 BALL_SPEED_Y = 0.1
 BALL_SIZE = 0.2
-PLAYER_SPEED = 0.3
+PLAYER_SPEED = 1
 SCORE_MAX = 10
 TIMER = 40
-MAX_SPEED = 0.2
+MAX_SPEED = player_speed
 
 
 class Ball:
@@ -67,6 +67,7 @@ class PongGame:
 		self.run = False
 		self.timer = 0
 		self.is_local = is_local
+		# self.player_speed = PLAYER_SPEED
 		print(f"{MAGENTA} Room [{self.room_id}] game started with success {RESET}")
 
 	def get_player(self, player):

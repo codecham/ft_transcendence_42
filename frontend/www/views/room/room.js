@@ -19,7 +19,6 @@ let pongCanvas = document.getElementById("pongDiv")
 //End div
 let endGamediv = document.getElementById('endGameDiv')
 
-
 //Lobby div Function
 /*---------------------------------------------------*/
 start_btn.addEventListener('click', sendStartGame)
@@ -137,8 +136,47 @@ function getRoomId() {
     }
 }
 
+function process_cli(cliInput, errorMessage){
+    var command = cliInput.value.trim();
+
+    if (isValidCommand(command)) {
+        // Do something with the valid command (you can replace this with your logic)
+        console.log("Command entered: " + command);
+        errorMessage.textContent = ""; // Clear error message
+    } else {
+        // Display an error message for invalid command
+        errorMessage.textContent = "Invalid command. Please try again.";
+    };
+    cliInput.value = "";
+    var parse = command.split('=');
+    console.log(parse);
+    if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+            type: "command",
+            command: parse[0],
+            value: parse[1],
+        }));
+    } else {
+        console.error('WebSocket connection is not open.');
+    }
+}
+
+function isValidCommand(command) {
+    var pattern = /^[a-zA-Z_]+\s*=\s*\d+$/;
+    return pattern.test(command);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
 	const room_id = getRoomId();
+    var cliInput = document.getElementById('cli-input');
+    var errorMessage = document.getElementById('error-message');
+
+    cliInput.addEventListener('keydown', function (event){
+        if (event.key == 'Enter' && !event.shiftKey){
+            event.preventDefault();
+            process_cli(cliInput, errorMessage);
+        }
+    });
 
     if (room_id !== undefined) {
         const socketUrl = `wss://localhost:8001/ws/game/${room_id}/`
@@ -243,7 +281,6 @@ function islocal() {
     const playerListElem = document.getElementById("player-list-settings");
     playerListElem.style.display = 'none';
 }
-
 
 
 /*

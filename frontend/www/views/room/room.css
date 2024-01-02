@@ -169,3 +169,27 @@ body {
     font-size: 18px;
     font-family: 'BruceForever';
 }
+#cli-box {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 25%;
+    color: rgb(0, 0, 0);
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#cli-input {
+    width: calc(100%);
+    height: 40px;
+    font-family: 'BruceForever';
+    color: rgb(0, 0, 0);
+    background-color: rgb(255, 255, 255);
+    border: none;
+    resize: none;
+}
+#error-message {
+    color: #ff5555;
+    font-weight: bold;
+    margin-top: 5px;
+}
