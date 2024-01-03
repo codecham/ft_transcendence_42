@@ -36,7 +36,8 @@ SECRET_KEY = 'django-insecure-t@(j%*y#c@qs^3mgdk8^1@#_kwde)vjy^eggiq)9-9*znztbz1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -156,7 +157,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-time.sleep(10.4)
+# time.sleep(10.4)
 
 try:
 	with connection.cursor():
@@ -169,15 +170,16 @@ AUTH_USER_MODEL='authentification.UserProfile'
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8080",
-	"http://127.0.0.1:8080",
-	"https://localhost:8080",
-	"https://127.0.0.1:8080",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8080",
+# 	"http://127.0.0.1:8080",
+# 	"https://localhost:8443",
+# 	"https://127.0.0.1:8080",
+# ]
+
 
 CORS_ALLOW_METHODS = [
     'DELETE',

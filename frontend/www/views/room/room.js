@@ -104,7 +104,7 @@ function showError(error) {
     const errorMessageElement = document.getElementById('error-message');
 
     errorMessageElement.innerHTML = 'Error: ';
-    errorMessageElement.innerHTML = error;
+    errorMessageElement.innerHTML = error.error_message;
 }
 
 
@@ -140,11 +140,9 @@ function process_cli(cliInput, errorMessage){
     var command = cliInput.value.trim();
 
     if (isValidCommand(command)) {
-        // Do something with the valid command (you can replace this with your logic)
         console.log("Command entered: " + command);
-        errorMessage.textContent = ""; // Clear error message
+        errorMessage.textContent = "";
     } else {
-        // Display an error message for invalid command
         errorMessage.textContent = "Invalid command. Please try again.";
     };
     cliInput.value = "";
@@ -162,21 +160,14 @@ function process_cli(cliInput, errorMessage){
 }
 
 function isValidCommand(command) {
-    var pattern = /^[a-zA-Z_]+\s*=\s*\d+$/;
-    return pattern.test(command);
+    var pattern = /^[a-zA-Z_]+\s*=\s*-?\d+(\.\d+)?$/;
+    return pattern.test(command) && !/\s/.test(command);
 }
 
 document.addEventListener('DOMContentLoaded', function() {
 	const room_id = getRoomId();
     var cliInput = document.getElementById('cli-input');
     var errorMessage = document.getElementById('error-message');
-
-    cliInput.addEventListener('keydown', function (event){
-        if (event.key == 'Enter' && !event.shiftKey){
-            event.preventDefault();
-            process_cli(cliInput, errorMessage);
-        }
-    });
 
     if (room_id !== undefined) {
         const socketUrl = `wss://localhost:8001/ws/game/${room_id}/`
@@ -208,6 +199,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        cliInput.addEventListener('keydown', function (event){
+            if (event.key == 'Enter' && !event.shiftKey){
+                event.preventDefault();
+                process_cli(cliInput, errorMessage);
+            }
+        });
 
         /*
             Errors sockets listening
@@ -312,6 +309,9 @@ function handleMessage(data) {
             break;
         case 'is_local':
             islocal()
+            break;
+        case 'error_message':
+            showError(data.data);
             break;
         default:
             console.warn('Unknown message type:', data.type);

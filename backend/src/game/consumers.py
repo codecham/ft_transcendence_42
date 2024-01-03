@@ -361,8 +361,14 @@ class GameConsumer(AsyncWebsocketConsumer):
             elif data['data'] == 'changeName':
                 await self.changeName(data['name'])
         if data['type'] == 'command':
-            if data['commad'] == 'player_speed':
-                await
+            if data['command'] == 'player_speed':
+                await self.set_player_speed(data['value'])
+            elif data['command'] == 'score_max':
+                await self.set_score_max(data['value'])
+            elif data['command'] == 'timer':
+                await self.set_timer(data['value'])
+            elif data['command'] == 'ball_speed_x':
+                await self.set_ball_speed_x(data['value'])
 
 
 
@@ -543,10 +549,56 @@ class GameConsumer(AsyncWebsocketConsumer):
     #-------------------------------------------------------------------------
     
 
-    # async def set_player_speed(self, value):
-    #     room = RoomManager.get_game(self.room_id)
-    #     #verification...
+    async def set_player_speed(self, value):
+        room = RoomManager.get_room(self.room_id)
+        try :
+            value = float(value)
+        except  ValueError:
+            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+            return
+        if value < 0.0 or value > 2.0 :
+            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+        else :
+            room.player_speed = value
 
-    #     room.player_speed = value
+
+    async def set_score_max(self, value):
+        room = RoomManager.get_room(self.room_id)
+        try :
+            value = int(value)
+        except  ValueError:
+            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+            return
+        if value < 1 or value > 50:
+            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+        else :
+            room.score_max = value
+
+
+
+    async def set_timer(self, value):
+        room = RoomManager.get_room(self.room_id)
+        try :
+            value = int(value)
+        except  ValueError:
+            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+            return
+        if value < 1 or value > 100:
+            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+        else :
+            room.timer = value
+    
+
+
+    async def set_ball_speed_x(self, value):
+        room = RoomManager.get_room(self.room_id)
+        try :
+            value = float(value)
+        except  ValueError:
+            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+            return
+        if value < 0 or value > 2 :
+            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+        else :
+            room.ball_speed_x = value
         
-    #     await self.send_event_to_current_client('error_cli', {'error_message' : 'incorect value'})

@@ -29,7 +29,7 @@ BALL_SIZE = 0.2
 PLAYER_SPEED = 1
 SCORE_MAX = 10
 TIMER = 40
-MAX_SPEED = player_speed
+MAX_SPEED = 2
 
 
 class Ball:

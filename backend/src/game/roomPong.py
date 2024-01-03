@@ -26,6 +26,9 @@ class RoomPong:
 		self.current_game = None
 		self.current_tournament = None
 		self.player_speed = None
+		self.score_max = None
+		self.timer = None
+		self.ball_speed_x = None
 
 
 	#Add a player to the first slot
