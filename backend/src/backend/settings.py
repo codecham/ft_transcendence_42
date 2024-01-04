@@ -37,7 +37,7 @@ SECRET_KEY = 'django-insecure-t@(j%*y#c@qs^3mgdk8^1@#_kwde)vjy^eggiq)9-9*znztbz1
 DEBUG = True
 
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -203,6 +203,7 @@ CORS_ALLOW_HEADERS = ['']
 
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_SAVE_EVERY_REQUEST = True 

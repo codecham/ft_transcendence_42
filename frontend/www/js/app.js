@@ -1,12 +1,28 @@
-'use strict';
+var backendUrl = '';
+var g_socketsUrl = '';
+var connected_user = '';
 
-// var backendUrl = "http://localhost:8080/api";
-var backendUrl = "https://localhost:8443/api";
-var socketUrl = "ws://localhost:8443/ws/";
-var connected_user = "";
+
+async function getHostIpAddress()
+{
+    try {
+        const response = await fetch('host_ip.json');
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        console.error('Error fetching IP address:', error);
+        return null;
+    }
+}
+
 
 (function () {
-    function init() {
+    async function init() {
+        const reponse = await getHostIpAddress();
+        console.log(reponse);
+        backendUrl = `https://${reponse}:8443/api`;
+        g_socketsUrl = `wss://${reponse}:8001/ws/game/`;
+        console.log(backendUrl);
         var router = new Router([
             new Route('home', 'home/home.html', ["home/home.css"], ["home/home.js"], true),
             new Route('lobby', 'lobby/lobby.html', ['lobby/lobby.css'], ["lobby/lobby.js"]),

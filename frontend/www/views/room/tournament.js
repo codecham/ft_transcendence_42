@@ -2,7 +2,6 @@ import { recievedata } from "./pong.js";
 import { startGame } from "./pong.js";
 import { stopGame } from "./pong.js";
 
-
 let player = {};
 let socket;
 
@@ -215,8 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	const room_id = getRoomId();
 
     if (room_id !== undefined) {
-        const socketUrl = `wss://localhost:8001/ws/game/${room_id}/`
-        // const socketUrl = socketUrl + `/game/${room_id}/`
+        const socketUrl = `${g_socketsUrl}${room_id}/`;
         console.log("url socket: ", socketUrl);
         socket = new WebSocket(socketUrl);
 
