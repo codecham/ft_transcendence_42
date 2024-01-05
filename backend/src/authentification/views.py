@@ -15,7 +15,7 @@ def register_view(request):
         return (JsonResponse({"error":"Unauthorized method"}, status=405))
 
     try:
-        data=json.loads(request.body.decode('utf-8')) # data will contain the parsed request
+        data=json.loads(request.body.decode('utf-8'))
         username=data.get('username')
         password=data.get('password')
     except json.JSONDecodeError:
