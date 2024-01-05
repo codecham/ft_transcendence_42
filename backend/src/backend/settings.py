@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 	'game',
 	'corsheaders',
 	'user_profile',
+    'friends',
 	'sslserver',
     'django.contrib.admin',
     'django.contrib.auth',
