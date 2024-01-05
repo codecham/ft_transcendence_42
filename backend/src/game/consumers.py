@@ -367,8 +367,6 @@ class GameConsumer(AsyncWebsocketConsumer):
                 await self.set_score_max(data['value'])
             elif data['command'] == 'timer':
                 await self.set_timer(data['value'])
-            elif data['command'] == 'ball_speed_x':
-                await self.set_ball_speed_x(data['value'])
             else:
                 await self.send_event_to_current_client('cli_log', {'message' : 'Invalid command. Please try again.'})
 
@@ -597,7 +595,7 @@ class GameConsumer(AsyncWebsocketConsumer):
     
 
 
-    async def set_ball_speed_x(self, value):
+    async def set_ball_speed(self, value):
         room = RoomManager.get_room(self.room_id)
         try :
             value = float(value)
@@ -607,6 +605,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         if value < 0.1 or value > 0.3 :
             await self.send_event_to_current_client('cli_log', {'message' : 'Invalid value: Must be a float between 0.1 and 0.3. Please try again'})
         else :
-            room.ball_speed_x = value
+            room.ball_speed = value
             await self.send_event_to_current_client('cli_log', {'message' : 'Ball Speed X update success'})
         
