@@ -193,3 +193,24 @@ body {
     font-weight: bold;
     margin-top: 5px;
 }
+
+#share-link-container {
+    display: none;
+    color: white;
+}
+
+#share-link-container h4 {
+    font-family: 'BruceForever';
+    color: #136328;
+}
+
+#share-link-container h6 {
+    font-family: 'BruceForever';
+    border: 0.5px solid white;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+#cli_log {
+    color: white;
+}

@@ -106,7 +106,6 @@ Router.prototype = {
     },
 
     checkUserIsLog: async function() {
-        console.log("OUIIIIII PUTAAAAAAAAAAAIN");
         const url = backendUrl + '/authentification/user_is_log/';
         const response = await fetch(url, {
             method: 'GET',

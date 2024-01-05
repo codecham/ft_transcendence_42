@@ -1,3 +1,11 @@
+var login_link = document.getElementById("register-link");
+
+
+login_link.addEventListener("click", function(){
+    window.location.hash = `sign-up`;
+})
+
+
 document.getElementById("signUp-form").addEventListener("submit", function(event) {
 	const url = backendUrl + "/authentification/login/"
 	event.preventDefault();
@@ -46,6 +54,7 @@ document.getElementById("signUp-form").addEventListener("submit", function(event
 });
 
 var login_link = document.getElementById("register-link");
+
 
 login_link.addEventListener("click", function(){
     window.location.hash = `sign-up`;

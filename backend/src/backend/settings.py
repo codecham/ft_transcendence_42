@@ -19,13 +19,6 @@ import time
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-# dotenv_path = os.path.join(BASE_DIR.parent, '.env')
-# with open(dotenv_path) as f:
-# 	for line in f:
-# 		if line.strip() and not line.startswith("#"):
-# 			key, value = line.strip().split("=")
-# 			os.environ[key] = value
-	
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -36,7 +29,6 @@ SECRET_KEY = 'django-insecure-t@(j%*y#c@qs^3mgdk8^1@#_kwde)vjy^eggiq)9-9*znztbz1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
 ALLOWED_HOSTS = ['*']
 
 
@@ -171,7 +163,7 @@ AUTH_USER_MODEL='authentification.UserProfile'
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ALLOWED_ORIGINS = [
@@ -204,7 +196,6 @@ CORS_ALLOW_HEADERS = ['']
 
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
-CORS_ALLOW_ALL_ORIGINS = True
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_SAVE_EVERY_REQUEST = True 

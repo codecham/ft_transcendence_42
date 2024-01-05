@@ -27,6 +27,8 @@ services:
     ports:
       - 8080:80
       - 8443:443
+    env_file:
+      - .env
     networks:
       - mynetwork
 

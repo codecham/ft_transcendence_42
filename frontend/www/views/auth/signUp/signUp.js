@@ -1,3 +1,4 @@
+
 document.getElementById("signUp-form").addEventListener("submit", function(event) {
 	const url = backendUrl + "/authentification/register/"
 	event.preventDefault();
@@ -35,6 +36,14 @@ document.getElementById("signUp-form").addEventListener("submit", function(event
 			console.error("Error:", error);
 		});
 });
+
+var login_link_2 = document.getElementById("register-link");
+
+
+login_link_2.addEventListener("click", function(){
+    window.location.hash = `sign-in`;
+})
+
 
 var login_link = document.getElementById("login-link");
 

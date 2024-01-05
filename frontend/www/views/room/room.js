@@ -9,6 +9,7 @@ let socket;
 let lobby_div = document.getElementById("lobby-div")
 const start_btn = document.getElementById("start_btn_id")
 const username_field_elemt = document.getElementById("username-btn")
+const cli_log_elem = document.getElementById('cli_log')
 
 
 //Game Div
@@ -92,6 +93,15 @@ function setNumberOfPlayer(data) {
 
 
 
+function share_link(room_id) {
+    const linkElem = document.getElementById('sharing_link');
+    var linkContainer = document.getElementById('share-link-container')
+    const url = backendUrl.slice(0, -4);
+
+    linkContainer.style.display = 'block';
+    linkElem.innerText = `${url}/#room?room_id=${room_id}`;
+}
+
 
 
 
@@ -135,14 +145,28 @@ function getRoomId() {
     }
 }
 
+function cli_help() {
+    cli_log_elem.innerText= '';
+    cli_log_elem.innerText = 'USAGE:\n' +
+                             'score_max=[1 - 50]\n' +
+                             'timer=[1 - 100]\n' +
+                             'player_speed=[1 - 3]\n' +
+                             'ball_speed_x=[0.1 - 0.3]';
+}
+
+
 function process_cli(cliInput, errorMessage){
     var command = cliInput.value.trim();
 
+    if (command == 'help') {
+        cli_help();
+        return ;
+    }
     if (isValidCommand(command)) {
         console.log("Command entered: " + command);
-        errorMessage.textContent = "";
+        cli_log_elem.textContent = "";
     } else {
-        errorMessage.textContent = "Invalid command. Please try again.";
+        cli_log_elem.textContent = "Invalid command. Please try again.";
     };
     cliInput.value = "";
     var parse = command.split('=');
@@ -179,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
         */
         socket.addEventListener('open', (event) => {
             console.log('WebSocket connection established:', event);
+            share_link(room_id);
         });
 
 
@@ -258,6 +283,10 @@ function islocal() {
     let control_1 = document.createElement('div');
     let control_2 = document.createElement('div');
 
+    var linkContainer = document.getElementById('share-link-container')
+
+    linkContainer.style.display = 'None';
+
     title.textContent = 'Controls:';
     control_1.textContent = 'Player 1: UP: W | DOWN: S';
     control_2.innerHTML = 'Player 2: UP: &uarr; | DOWN: &darr;';
@@ -275,6 +304,12 @@ function islocal() {
 
     const playerListElem = document.getElementById("player-list-settings");
     playerListElem.style.display = 'none';
+}
+
+
+function cli_log(message) {
+    cli_log_elem.innerText = '';
+    cli_log_elem.innerText = message;
 }
 
 
@@ -311,11 +346,15 @@ function handleMessage(data) {
         case 'error_message':
             showError(data.data);
             break;
+        case 'cli_log':
+            cli_log(data.data.message)
+            break;
         default:
             console.warn('Unknown message type:', data.type);
             console.warn(data);
     }
 }
+
 /*---------------------------------------------------*/
 
 

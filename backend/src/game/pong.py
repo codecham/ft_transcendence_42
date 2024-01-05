@@ -23,13 +23,11 @@ PADDLE_SIZE = 1.5
 PADDLE_WIDTH = 0.2
 MAP_SIZE_X = 12
 MAP_SIZE_Y = 8
-BALL_SPEED_X = 0.3
-BALL_SPEED_Y = 0.1
 BALL_SIZE = 0.2
 PLAYER_SPEED = 1
 SCORE_MAX = 10
 TIMER = 40
-MAX_SPEED = 2
+MAX_SPEED = 0.2
 
 
 class Ball:
@@ -67,7 +65,10 @@ class PongGame:
 		self.run = False
 		self.timer = 0
 		self.is_local = is_local
-		# self.player_speed = PLAYER_SPEED
+		#------------------------------
+		self.player_speed = PLAYER_SPEED
+		self.score_max = SCORE_MAX
+		self.timer_value = TIMER
 		print(f"{MAGENTA} Room [{self.room_id}] game started with success {RESET}")
 
 	def get_player(self, player):
@@ -79,37 +80,37 @@ class PongGame:
 		if self.is_local == False:
 			if player_id == self.p1:
 				if key == UP:
-					self.p1_y -= PLAYER_SPEED
+					self.p1_y -= self.player_speed
 					if (self.p1_y - (PADDLE_SIZE / 2) < self.corner_up):
 						self.p1_y = self.corner_up + (PADDLE_SIZE / 2)
 				elif key == DOWN:
-					self.p1_y += PLAYER_SPEED
+					self.p1_y += self.player_speed
 					if (self.p1_y + (PADDLE_SIZE / 2) > self.corner_down):
 						self.p1_y = self.corner_down - (PADDLE_SIZE / 2)
 			elif player_id == self.p2:
 				if key == UP:
-					self.p2_y -= PLAYER_SPEED
+					self.p2_y -= self.player_speed
 					if (self.p2_y - (PADDLE_SIZE / 2) < self.corner_up):
 						self.p2_y = self.corner_up + (PADDLE_SIZE / 2)
 				elif key == DOWN:
-					self.p2_y += PLAYER_SPEED
+					self.p2_y += self.player_speed
 					if (self.p2_y + (PADDLE_SIZE / 2) > self.corner_down):
 						self.p2_y = self.corner_down - (PADDLE_SIZE / 2)
 		else:
 			if key == UP_LOCAL_1:
-				self.p1_y -= PLAYER_SPEED
+				self.p1_y -= self.player_speed
 				if (self.p1_y - (PADDLE_SIZE / 2) < self.corner_up):
 					self.p1_y = self.corner_up + (PADDLE_SIZE / 2)
 			elif key == DOWN_LOCAL_1:
-				self.p1_y += PLAYER_SPEED
+				self.p1_y += self.player_speed
 				if (self.p1_y + (PADDLE_SIZE / 2) > self.corner_down):
 					self.p1_y = self.corner_down - (PADDLE_SIZE / 2)
 			elif key == UP_LOCAL_2:
-				self.p2_y -= PLAYER_SPEED
+				self.p2_y -= self.player_speed
 				if (self.p2_y - (PADDLE_SIZE / 2) < self.corner_up):
 					self.p2_y = self.corner_up + (PADDLE_SIZE / 2)
 			elif key == DOWN_LOCAL_2:
-				self.p2_y += PLAYER_SPEED
+				self.p2_y += self.player_speed
 				if (self.p2_y + (PADDLE_SIZE / 2) > self.corner_down):
 					self.p2_y = self.corner_down - (PADDLE_SIZE / 2)
 			
@@ -118,13 +119,13 @@ class PongGame:
 		
 	
 	def check_end(self):
-		if self.score_p1 == SCORE_MAX:
+		if self.score_p1 == self.score_max:
 			self.winner_id = self.p1
 			self.loser_id = self.p2
 			self.winner_name = self.p1_name
 			self.loser_name = self.p2_name
 			self.status = 'finished'
-		elif self.score_p2 == SCORE_MAX:
+		elif self.score_p2 == self.score_max:
 			self.winner_id = self.p2
 			self.loser_id = self.p1
 			self.winner_name = self.p2_name
@@ -139,6 +140,10 @@ class PongGame:
 			self.timer -= 1
 		self.check_end()
 		game_state = {
+			'timer': self.timer,
+			'speed_ball': self.ball.x_vel,
+			'score_max': self.score_max,
+			'player_speed': self.player_speed,
             'ball_posX': self.ball.x,
             'ball_posY': self.ball.y,
             'p1_posY': self.p1_y,
@@ -179,7 +184,7 @@ class PongGame:
 					# self.ball.x_vel = random.uniform((MAX_SPEED * - 1), 0)
 					# self.ball.y_vel = random.uniform((MAX_SPEED * - 1), (MAX_SPEED))
 					self.score_p2 += 1
-					self.timer = TIMER
+					self.timer = self.timer_value
 		else:
 			#check right paddle
 			if self.ball.x + (BALL_SIZE / 2) >= (MAP_SIZE_X / 2) - (PADDLE_WIDTH / 2):
@@ -196,7 +201,7 @@ class PongGame:
 					self.ball.y = random.uniform(-4, 4)
 					# self.ball.x_vel = random.uniform((MAX_SPEED), 0)
 					# self.ball.y_vel = random.uniform((MAX_SPEED * - 1), (MAX_SPEED))
-					self.timer = TIMER
+					self.timer = self.timer_value
 
 
 
@@ -211,6 +216,16 @@ class PongGame:
 			'status': self.status,
         }
 		return game_state
+	
+	def update_game_value(self, player_speed, score_max, timer, ball_speed):
+		if player_speed != None:
+			self.player_speed = player_speed
+		if score_max != None:
+			self.score_max = score_max
+		if timer != None:
+			self.timer_value = timer
+		if ball_speed != None:
+			self.ball.x_vel = ball_speed
 
 	def log_game(self):
 		print(f"{MAGENTA}p1_id [{self.p1}]")		

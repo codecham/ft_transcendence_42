@@ -369,6 +369,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                 await self.set_timer(data['value'])
             elif data['command'] == 'ball_speed_x':
                 await self.set_ball_speed_x(data['value'])
+            else:
+                await self.send_event_to_current_client('cli_log', {'message' : 'Invalid command. Please try again.'})
 
 
 
@@ -401,12 +403,14 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def create_new_game(self, player1, player2):
         new_game = PongGame(self.room_id, player1, player2)
+        new_game.update_game_value(self.room.player_speed, self.room.score_max, self.room.timer, self.room.ball_speed_x)
 
         GameManager.set_game(self.room_id, new_game)
         self.room.set_current_game(GameManager.get_game(self.room_id))
 
     async def create_new_local_game(self, player1, player2):
         new_game = PongGame(self.room_id, player1, player2, True)
+        new_game.update_game_value(self.room.player_speed, self.room.score_max, self.room.timer, self.room.ball_speed_x)
         GameManager.set_game(self.room_id, new_game)
         self.room.set_current_game(GameManager.get_game(self.room_id))
 
@@ -554,12 +558,13 @@ class GameConsumer(AsyncWebsocketConsumer):
         try :
             value = float(value)
         except  ValueError:
-            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+            await self.send_event_to_current_client('cli_log', {'message' : 'Invalid value: Must be a number between 1 and 3. Please try again'})
             return
-        if value < 0.0 or value > 2.0 :
-            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+        if value < 1 or value > 3 :
+            await self.send_event_to_current_client('cli_log', {'message' : 'Invalid value: Must be a number between 1 and 3. Please try again'})
         else :
             room.player_speed = value
+            await self.send_event_to_current_client('cli_log', {'message' : 'Player speed update success'})
 
 
     async def set_score_max(self, value):
@@ -567,12 +572,13 @@ class GameConsumer(AsyncWebsocketConsumer):
         try :
             value = int(value)
         except  ValueError:
-            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+            await self.send_event_to_current_client('cli_log', {'message' : 'Invalid value: Must be a numbre between 1 and 50. Please try again'})
             return
         if value < 1 or value > 50:
-            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+            await self.send_event_to_current_client('cli_log', {'message' : 'Invalid value: Must be a numbre between 1 and 50. Please try again'})
         else :
             room.score_max = value
+            await self.send_event_to_current_client('cli_log', {'message' : 'Score max update success'})
 
 
 
@@ -581,12 +587,13 @@ class GameConsumer(AsyncWebsocketConsumer):
         try :
             value = int(value)
         except  ValueError:
-            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+            await self.send_event_to_current_client('cli_log', {'message' : 'Invalid value: Must be a numbre between 1 and 100. Please try again'})
             return
         if value < 1 or value > 100:
-            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+            await self.send_event_to_current_client('cli_log', {'message' : 'Invalid value: Must be a numbre between 1 and 100. Please try again'})
         else :
             room.timer = value
+            await self.send_event_to_current_client('cli_log', {'message' : 'Timer update success'})
     
 
 
@@ -595,10 +602,11 @@ class GameConsumer(AsyncWebsocketConsumer):
         try :
             value = float(value)
         except  ValueError:
-            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+            await self.send_event_to_current_client('cli_log', {'message' : 'Invalid value: Must be a float between 0.1 and 0.3. Please try again'})
             return
-        if value < 0 or value > 2 :
-            await self.send_event_to_current_client('error_message', {'error_message' : 'Invalid value. Please try again'})
+        if value < 0.1 or value > 0.3 :
+            await self.send_event_to_current_client('cli_log', {'message' : 'Invalid value: Must be a float between 0.1 and 0.3. Please try again'})
         else :
             room.ball_speed_x = value
+            await self.send_event_to_current_client('cli_log', {'message' : 'Ball Speed X update success'})
         

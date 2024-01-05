@@ -12,6 +12,7 @@ const username_field_elemt = document.getElementById("username-btn")
 const changeNameBtn = document.getElementById("change_name_btn")
 const nameInput = document.getElementById('name-input')
 let errorMessageNameElement = document.getElementById('error-message-name')
+const cli_log_elem = document.getElementById('cli_log')
 
 //Game Div
 let pongCanvas = document.getElementById("pongDiv")
@@ -108,10 +109,11 @@ function setPLayerObject(player, data) {
     username_field_elemt.innerText = player.name
     if (player.is_master != true) {
         start_btn.style.display = 'none';
-        getNextMacthButton.display = 'none';
+        getNextMacthButton.style.display = 'none';
     }
     if (player.is_master != true) {
         startNextMatchButton.style.display = 'none';
+
     }
 }
 
@@ -159,9 +161,14 @@ function setNumberOfPlayer(data) {
 /*---------------------------------------------------*/
 
 
+function share_link(room_id) {
+    const linkElem = document.getElementById('sharing_link');
+    var linkContainer = document.getElementById('share-link-container')
+    const url = backendUrl.slice(0, -4);
 
-
-
+    linkContainer.style.display = 'block';
+    linkElem.innerText = `${url}/#tournament?room_id=${room_id}`;
+}
 
 
 
@@ -210,8 +217,53 @@ function getRoomId() {
     }
 }
 
+function cli_help() {
+    cli_log_elem.innerText= '';
+    cli_log_elem.innerText = 'USAGE:\n' +
+                             'score_max=[1 - 50]\n' +
+                             'timer=[1 - 100]\n' +
+                             'player_speed=[1 - 3]\n' +
+                             'ball_speed_x=[0.1 - 0.3]';
+}
+
+
+function process_cli(cliInput, errorMessage){
+    var command = cliInput.value.trim();
+
+    if (command == 'help') {
+        cli_help();
+        return ;
+    }
+    if (isValidCommand(command)) {
+        console.log("Command entered: " + command);
+        cli_log_elem.textContent = "";
+    } else {
+        cli_log_elem.textContent = "Invalid command. Please try again.";
+    };
+    cliInput.value = "";
+    var parse = command.split('=');
+    console.log(parse);
+    if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+            type: "command",
+            command: parse[0],
+            value: parse[1],
+        }));
+    } else {
+        console.error('WebSocket connection is not open.');
+    }
+}
+
+function isValidCommand(command) {
+    var pattern = /^[a-zA-Z_]+\s*=\s*-?\d+(\.\d+)?$/;
+    return pattern.test(command) && !/\s/.test(command);
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
 	const room_id = getRoomId();
+    var cliInput = document.getElementById('cli-input');
+    var errorMessage = document.getElementById('error-message');
 
     if (room_id !== undefined) {
         const socketUrl = `${g_socketsUrl}${room_id}/`;
@@ -223,6 +275,7 @@ document.addEventListener('DOMContentLoaded', function() {
         */
         socket.addEventListener('open', (event) => {
             console.log('WebSocket connection established:', event);
+            share_link(room_id);
         });
 
 
@@ -241,6 +294,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+        cliInput.addEventListener('keydown', function (event){
+            if (event.key == 'Enter' && !event.shiftKey){
+                event.preventDefault();
+                process_cli(cliInput, errorMessage);
+            }
+        });
 
         /*
             Errors sockets listening
@@ -324,6 +383,12 @@ function change_screen(data) {
 }
 
 
+function cli_log(message) {
+    cli_log_elem.innerText = '';
+    cli_log_elem.innerText = message;
+}
+
+
 
 /*
     Backend socket message handler
@@ -363,6 +428,10 @@ function handleMessage(data) {
             break;
         case 'name_already_use':
             showErrorName(data.data)
+            break
+        case 'cli_log':
+            cli_log(data.data.message)
+            break;
         default:
             console.warn('Unknown message type:', data.type);
             console.warn(data);

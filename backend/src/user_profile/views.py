@@ -1,5 +1,5 @@
 import json
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from authentification.models import UserProfile
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
@@ -79,3 +79,34 @@ def update_profile(request):
     except json.JSONDecodeError:
         return (JsonResponse({"error": "Invalid JSON data"}, status=400))
 
+
+@login_required
+def get_other_user_profile(request, username):
+    if request.method == 'GET':
+        user = get_object_or_404(UserProfile, username=username)
+
+        if user:
+            user_info = {
+                'username': user.username,
+            }
+            return JsonResponse(user_info)
+        else:
+            return JsonResponse({'error': 'User not found.'}, status=404)
+    else:
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
+    
+
+@login_required
+def get_other_profile_image(request, username):
+    if request.method == 'GET':
+        user = get_object_or_404(UserProfile, username=username)
+        image_path = user.profile_image.path
+
+        if not user:
+            return JsonResponse({'error': 'User not found.'}, status=404)
+        
+        with default_storage.open(image_path, 'rb') as f:
+            image_data = f.read()
+            return HttpResponse(image_data, content_type="image/jpeg")
+    else:
+        return JsonResponse({'error': 'Method not allowed.'}, status=405)
