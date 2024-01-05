@@ -1,0 +1,63 @@
+@font-face {
+    font-family: 'BruceForever';
+    src: url('../../assets/font/bruce-forever-font/BruceForeverRegular-X3jd2.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Aquire';
+    src: url('../../assets/font/aquire-font/Aquire-BW0ox.otf') format('truetype');
+}
+
+#friends-div {
+	margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+#friends-div h1 {
+    font-size: 4em;
+    color: cyan;
+    margin-bottom: 30px;
+    font-family: 'BruceForever';
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+#friends-div h2 {
+    font-size: 1em;
+    color: grey;
+    margin-bottom: 30px;
+    font-family: 'BruceForever';
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+}
+
+#friends-container {
+    color: white;
+    font-size: 1em; 
+    font-family: 'Aquire';
+    text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+    align-items: center;
+}
+
+.online-status-true .status {
+    color: green;
+}
+
+.online-status-false .status {
+    color: red;
+}
+
+.add-button {
+    padding: 5px 10px;
+    background-color: #4a5493;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
