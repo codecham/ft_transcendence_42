@@ -1,6 +1,6 @@
 COMPOSE_FILE = docker-compose.yml
 DOCKER = docker
-FRONTEND_ID = a6940f9fc682
+FRONTEND_ID = 11621242446d
 
 
 #start the database containers
