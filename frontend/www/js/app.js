@@ -30,6 +30,7 @@ async function getHostIpAddress()
             new Route('sign-up', 'auth/signUp/signUp.html', ['auth/signUp/signUp.css'], ['auth/signUp/signUp.js']),
             new Route('sign-in', 'auth/signIn/signIn.html', ['auth/signIn/signIn.css'], ['auth/signIn/signIn.js']),
             new Route('profile', 'profile/profile.html', ['profile/profile.css'], ['profile/profile.js']),
+            new Route('friends', 'friends/friends.html', ['friends/friends.css'], ['friends/friends.js']),             
             new Route('edit-profile', 'profile/edit-profile.html', ['profile/edit-profile.css'], ['profile/edit-profile.js']),
             new Route('tournament', 'room/tournament.html', ['room/tournament.css'], ['room/tournament.js']),
         ]);
